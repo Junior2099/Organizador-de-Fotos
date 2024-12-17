@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Envio de Imagens</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            text-align: center;
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        input[type="file"] {
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .preview {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .preview img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            margin: 5px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Envie suas Imagens</h1>
+    <form id="uploadForm">
+        <input type="file" id="imageInput" multiple accept="image/*">
+        <button type="button" id="downloadBtn" disabled>Baixar todas as imagens</button>
+    </form>
+    <div id="preview" class="preview"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+    // Selecione os elementos DOM
+    const imageInput = document.getElementById('imageInput');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const preview = document.getElementById('preview');
+
+    // Função para mostrar as imagens na pré-visualização
+    imageInput.addEventListener('change', (e) => {
+        const files = e.target.files;
+        preview.innerHTML = '';  // Limpa a área de pré-visualização
+        if (files.length > 0) {
+            downloadBtn.disabled = false;  // Habilita o botão de download
+            Array.from(files).forEach(file => {
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(file);
+                preview.appendChild(img);
+            });
+        } else {
+            downloadBtn.disabled = true;  // Desabilita o botão se não houver arquivos
+        }
+    });
+
+    // Função para criar o arquivo ZIP e baixar
+    downloadBtn.addEventListener('click', async () => {
+        const zip = new JSZip();
+        const files = imageInput.files;
+
+        // Adiciona cada imagem ao arquivo ZIP
+        Array.from(files).forEach(file => {
+            zip.file(file.name, file);  // Adiciona cada imagem ao ZIP
+        });
+
+        // Gera o arquivo ZIP e faz o download
+        zip.generateAsync({ type: "blob" }).then(function(content) {
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(content);
+            a.download = 'imagens.zip';  // Nome do arquivo ZIP
+            a.click();
+        }).catch((err) => {
+            console.error('Erro ao gerar o arquivo ZIP:', err);
+        });
+    });
+</script>
+
+</body>
+</html>
