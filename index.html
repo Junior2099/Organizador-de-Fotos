@@ -1,128 +1,394 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Envio de Imagens</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip-utils/0.1.0/jszip-utils.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        .container {
-            text-align: center;
-            background-color: white;
-            padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 600px;
-        }
-
-        h1 {
-            margin-bottom: 20px;
-        }
-
-        input[type="file"] {
-            margin-bottom: 20px;
-        }
-
-        button {
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        button:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-
-        .preview {
-            margin-top: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .preview img {
-            width: 80px;
-            height: 80px;
-            object-fit: cover;
-            margin: 5px;
-            border-radius: 5px;
-        }
-    </style>
+    <title>Redimensionador de Fotos para Impressão</title>
 </head>
 <body>
+   <style>
+/* style.css */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 20px;
+}
 
-<div class="container">
-    <h1>Envie suas Imagens</h1>
-    <form id="uploadForm">
-        <input type="file" id="imageInput" multiple accept="image/*">
-        <button type="button" id="downloadBtn" disabled>Baixar todas as imagens</button>
-    </form>
-    <div id="preview" class="preview"></div>
-</div>
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script>
-    // Selecione os elementos DOM
-    const imageInput = document.getElementById('imageInput');
-    const downloadBtn = document.getElementById('downloadBtn');
-    const preview = document.getElementById('preview');
+h1 {
+    text-align: center;
+    color: #333;
+}
 
-    // Função para mostrar as imagens na pré-visualização
-    imageInput.addEventListener('change', (e) => {
-        const files = e.target.files;
-        preview.innerHTML = '';  // Limpa a área de pré-visualização
-        if (files.length > 0) {
-            downloadBtn.disabled = false;  // Habilita o botão de download
-            Array.from(files).forEach(file => {
-                const img = document.createElement('img');
-                img.src = URL.createObjectURL(file);
-                preview.appendChild(img);
+.info {
+    margin-bottom: 20px;
+}
+
+.orientation-info {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+    
+}
+
+.orientation-box {
+    text-align: center;
+
+}
+
+.border-controls,
+.buttons,
+.preview-container,
+.download-options {
+    margin-top: 20px;
+}
+
+.image-options {
+    
+    display: flex;
+    justify-content: space-between;
+}
+
+.preview-container {
+    
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+.preview-item {
+    
+    position: relative;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    max-width: 200px; /* Limita a largura máxima das imagens */
+    overflow: hidden; /* Garante que o conteúdo não ultrapasse o limite */
+}
+
+.preview-item img {
+    max-width: 100%;
+    height: auto; /* Mantém a proporção da imagem */
+    display: block;
+    margin-bottom: 10px;
+}
+
+.preview-item .remove-button {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: #ff5c5c;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+}
+
+.preview-item .remove-button:hover {
+    background-color: #ff1c1c;
+}
+
+.buttons button {
+    margin-right: 10px;
+    padding: 10px 15px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.buttons button:hover {
+    background-color: #45a049;
+}
+
+.download-options button {
+    padding: 10px 15px;
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.download-options button:hover {
+    background-color: #0b7dda;
+}
+
+.empty-state {
+    text-align: center;
+    color: #aaa;
+    padding: 20px;
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    background-color: #fafafa;
+}
+
+@media (max-width: 600px) {
+    .orientation-info,
+    .image-options {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+   </style> 
+    <div class="container">
+        <h1>Redimensionador de Fotos para Impressão</h1>
+        <br><br>
+        <div class="info">
+            <h3>Formatos disponíveis:</h3><hr>
+            <br>
+            <div class="orientation-info">
+                <div class="orientation-box">
+                    <div class="orientation-icon" style="font-size: 35px;">📱</div>
+                    <p><strong>Foto em Pé</strong></p>
+                    <br>
+                </div>
+                <div class="orientation-box">
+                    <div class="orientation-icon" style="font-size: 35px;">📺</div>
+                    <p><strong>Foto Deitada</strong></p>
+                    <br>
+                </div>
+            </div>
+        </div>
+        <hr>
+
+
+        <div class="border-controls">
+            <h3>Configuração da Borda:</h3>
+            <div class="image-options">
+                <label>
+                    Largura da borda (px):
+                    <input type="number" id="borderWidth" value="2" min="0" max="100">
+                </label>
+                <label>
+                    Cor da borda:
+                    <input type="color" id="borderColor" value="#EDEDED">
+                </label>
+            </div>
+        </div><hr>
+
+        <div class="buttons" style="text-align: center;">
+            <input type="file" id="fileInput" accept="image/*" multiple>
+            <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                Adicionar Fotos
+            </button>
+        </div>
+
+        <div class="preview-container" id="previewContainer">
+            <div class="empty-state">
+                Adicione fotos para começar
+            </div>
+        </div>
+
+        <div class="buttons" style="text-align: center;">
+            <button onclick="resizeAllImages('vertical')">Todas em Pé</button>
+            <button onclick="resizeAllImages('horizontal')">Todas Deitadas</button>
+            <button onclick="downloadAllImages()" id="downloadBtn" disabled>Baixar Todas Separadas</button>
+            <button onclick="downloadAllImagesZip()" id="downloadZipBtn" disabled>Baixar todas Juntas</button>
+        </div>
+    </div>
+
+    <script>
+        let images = [];
+    
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            
+            if (files.length === 0) return;
+            
+            // Remover mensagem de estado vazio se existir
+            const emptyState = document.querySelector('.empty-state');
+            if (emptyState) {
+                emptyState.remove();
+            }
+            
+            files.forEach((file) => {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const index = images.length;
+                        images.push({
+                            original: img,
+                            processed: img,
+                            name: file.name
+                        });
+                        createPreviewElement(img, index);
+                        document.getElementById('downloadBtn').disabled = false;
+                        document.getElementById('downloadZipBtn').disabled = false;
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
             });
-        } else {
-            downloadBtn.disabled = true;  // Desabilita o botão se não houver arquivos
+            
+            // Limpar input para permitir selecionar o mesmo arquivo novamente
+            e.target.value = '';
+        });
+    
+        function removeImage(index) {
+            images.splice(index, 1);
+            updatePreviewContainer();
+            if (images.length === 0) {
+                document.getElementById('downloadBtn').disabled = true;
+                document.getElementById('downloadZipBtn').disabled = true;
+                document.getElementById('previewContainer').innerHTML = `
+                    <div class="empty-state">
+                        Adicione fotos para começar
+                    </div>
+                `;
+            }
         }
-    });
-
-    // Função para criar o arquivo ZIP e baixar
-    downloadBtn.addEventListener('click', async () => {
-        const zip = new JSZip();
-        const files = imageInput.files;
-
-        // Adiciona cada imagem ao arquivo ZIP
-        Array.from(files).forEach(file => {
-            zip.file(file.name, file);  // Adiciona cada imagem ao ZIP
-        });
-
-        // Gera o arquivo ZIP e faz o download
-        zip.generateAsync({ type: "blob" }).then(function(content) {
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(content);
-            a.download = 'imagens.zip';  // Nome do arquivo ZIP
-            a.click();
-        }).catch((err) => {
-            console.error('Erro ao gerar o arquivo ZIP:', err);
-        });
-    });
-</script>
-
+    
+        function updatePreviewContainer() {
+            const container = document.getElementById('previewContainer');
+            container.innerHTML = '';
+            images.forEach((image, index) => {
+                createPreviewElement(image.processed, index);
+            });
+        }
+    
+        function createPreviewElement(img, index) {
+            const container = document.createElement('div');
+            container.className = 'preview-item';
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'remove-button';
+            removeBtn.innerHTML = '×';
+            removeBtn.onclick = () => removeImage(index);
+            
+            const preview = document.createElement('img');
+            preview.src = img.src;
+            preview.className = 'preview-image';
+            preview.id = `preview-${index}`;
+            
+            const dimensions = document.createElement('p');
+            dimensions.id = `dimensions-${index}`;
+            dimensions.textContent = `${img.width} x ${img.height} pixels`;
+            
+            const buttons = document.createElement('div');
+            buttons.className = 'buttons';
+            buttons.innerHTML = `
+                <button onclick="resizeImage('vertical', ${index})">Em Pé</button>
+                <button onclick="resizeImage('horizontal', ${index})">Deitada</button>
+            `;
+            
+            container.appendChild(removeBtn);
+            container.appendChild(preview);
+            container.appendChild(dimensions);
+            container.appendChild(buttons);
+            
+            document.getElementById('previewContainer').appendChild(container);
+        }
+    
+        function resizeImage(orientation, index) {
+            if (!images[index]) return;
+    
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            let targetWidth, targetHeight;
+            
+            if (orientation === 'vertical') {
+                targetWidth = 1200;
+                targetHeight = 1800;
+            } else {
+                targetWidth = 1800;
+                targetHeight = 1200;
+            }
+    
+            const borderWidth = parseInt(document.getElementById('borderWidth').value);
+            const borderColor = document.getElementById('borderColor').value;
+            
+            // Ajustar dimensões alvo para acomodar a borda
+            const imageWidth = targetWidth - (borderWidth * 2);
+            const imageHeight = targetHeight - (borderWidth * 2);
+            
+            // Calcular proporção para manter aspecto
+            const ratio = Math.min(imageWidth / images[index].original.width, 
+                                 imageHeight / images[index].original.height);
+            
+            // Novas dimensões mantendo proporção
+            const newWidth = images[index].original.width * ratio;
+            const newHeight = images[index].original.height * ratio;
+            
+            // Configurar canvas com dimensões alvo
+            canvas.width = targetWidth;
+            canvas.height = targetHeight;
+            
+            // Desenhar borda (fundo)
+            ctx.fillStyle = borderColor;
+            ctx.fillRect(0, 0, targetWidth, targetHeight);
+            
+            // Desenhar imagem centralizada
+            const x = borderWidth + (imageWidth - newWidth) / 2;
+            const y = borderWidth + (imageHeight - newHeight) / 2;
+            
+            ctx.drawImage(images[index].original, x, y, newWidth, newHeight);
+            
+            // Atualizar preview
+            const img = new Image();
+            img.onload = function() {
+                images[index].processed = img;
+                document.getElementById(`preview-${index}`).src = img.src;
+                document.getElementById(`dimensions-${index}`).textContent = 
+                    `${targetWidth} x ${targetHeight} pixels`;
+            };
+            img.src = canvas.toDataURL('image/jpeg', 0.9);
+        }
+    
+        function resizeAllImages(orientation) {
+            images.forEach((_, index) => {
+                resizeImage(orientation, index);
+            });
+        }
+    
+        function downloadAllImages() {
+            if (images.length === 0) return;
+            
+            images.forEach((image, index) => {
+                const link = document.createElement('a');
+                link.download = `foto_${index + 1}.jpg`;
+                link.href = image.processed.src;
+                link.click();
+            });
+        }
+    
+        function downloadAllImagesZip() {
+            const zip = new JSZip();
+            images.forEach((image, index) => {
+                zip.file(`foto_${index + 1}.jpg`, image.processed.src.split(',')[1], {base64: true});
+            });
+            zip.generateAsync({type: "blob"}).then(function(content) {
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(content);
+                link.download = 'imagens.zip';
+                link.click();
+            }).catch((err) => {
+                console.error('Erro ao gerar o arquivo ZIP:', err);
+            });
+        }
+    </script>
+    
 </body>
 </html>
