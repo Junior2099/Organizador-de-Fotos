@@ -3,21 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <link rel="icon" type="image/png" sizes="32x32" href="https://img.icons8.com/?size=100&id=12785&format=png&color=000000">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://img.icons8.com/?size=100&id=12785&format=png&color=000000">
     <title>Editor de Layout de Fotos</title>
     <style>
+        :root {
+            --primary-color: #3498db;
+            --primary-hover: #2980b9;
+            --success-color: #27ae60;
+            --success-hover: #219653;
+            --danger-color: #e74c3c;
+            --danger-hover: #c0392b;
+            --text-color: #2c3e50;
+            --bg-color: #f4f4f9;
+            --border-color: #3498db;
+            --dropzone-bg: #ecf0f1;
+            --dropzone-over: #bdc3c7;
+        }
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 20px;
-            background-color: #f4f4f9;
-            color: #333;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
         }
+        
         h1 {
             text-align: center;
-            color: #2c3e50;
+            color: var(--text-color);
             margin-bottom: 20px;
         }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
         .controls {
             display: flex;
             flex-wrap: wrap;
@@ -26,191 +49,456 @@
             justify-content: center;
             align-items: center;
         }
+        
         .controls input[type="file"] {
             display: none;
         }
-        .controls label, .controls button {
+        
+        .controls label, 
+        .controls button,
+        .btn {
             padding: 10px 20px;
-            background-color: #3498db;
+            background-color: var(--primary-color);
             color: #fff;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: all 0.3s;
             font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
         }
-        .controls label:hover, .controls button:hover {
-            background-color: #2980b9;
+        
+        .controls label:hover, 
+        .controls button:hover,
+        .btn:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
         }
+        
+        .btn-success {
+            background-color: var(--success-color);
+        }
+        
+        .btn-success:hover {
+            background-color: var(--success-hover);
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+        }
+        
+        .btn-danger:hover {
+            background-color: var(--danger-hover);
+        }
+        
         #opcoes {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
             justify-content: center;
         }
-        #opcoes .btn {
-            padding: 10px 20px;
-            background-color: #27ae60;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            font-size: 14px;
-        }
-        #opcoes .btn:hover {
-            background-color: #219653;
-        }
+        
         #imagePreview {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
             margin-bottom: 20px;
             justify-content: center;
+            min-height: 120px;
+            border: 2px dashed var(--border-color);
+            border-radius: 10px;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.7);
         }
+        
         #imagePreview img {
             max-width: 100px;
             max-height: 100px;
-            border: 2px solid #3498db;
+            border: 2px solid var(--border-color);
             border-radius: 5px;
             cursor: grab;
+            object-fit: cover;
+            transition: transform 0.2s;
         }
+        
+        #imagePreview img:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
         .print-layout {
             display: none;
             position: relative;
             width: 842px;
             height: 595px;
-            border: 2px dashed #3498db;
+            border: 2px dashed var(--border-color);
             margin: 20px auto;
             background-color: #fff;
             border-radius: 10px;
             overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
+        
         .print-layout img {
             position: absolute;
-            border: 2px solid #3498db;
+            border: 2px solid var(--border-color);
             border-radius: 5px;
             cursor: grab;
-            object-fit: cover; 
+            object-fit: cover;
+            transition: all 0.2s;
+            z-index: 1;
         }
+        
+        .print-layout img:hover {
+            z-index: 2;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .print-layout img.dragging {
+            cursor: grabbing;
+            opacity: 0.8;
+            transform: scale(1.05);
+            z-index: 10;
+        }
+        
         .preview-container {
             text-align: center;
             margin-top: 20px;
         }
+        
         .preview-container h2 {
             margin-bottom: 10px;
-            color: #2c3e50;
+            color: var(--text-color);
         }
+        
         .drop-zone {
-            border: 2px dashed #3498db;
+            border: 2px dashed var(--border-color);
             padding: 20px;
             text-align: center;
-            color: #3498db;
+            color: var(--border-color);
             cursor: pointer;
             margin-bottom: 20px;
             border-radius: 10px;
-            background-color: #ecf0f1;
-            transition: background-color 0.3s;
+            background-color: var(--dropzone-bg);
+            transition: all 0.3s;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
+        
         .drop-zone.dragover {
-            background-color: #bdc3c7;
+            background-color: var(--dropzone-over);
+            transform: scale(1.01);
         }
-        .clear-button {
-            background-color: #e74c3c;
-        }
-        .clear-button:hover {
-            background-color: #c0392b;
-        }
+        
         .copies-container {
             margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
+        
         .copies-container label {
             font-weight: bold;
-            margin-right: 10px;
-            color: #2c3e50;
+            color: var(--text-color);
         }
+        
         .copies-container input {
             width: 60px;
-            padding: 5px;
-            border: 2px solid #3498db;
+            padding: 8px;
+            border: 2px solid var(--border-color);
             border-radius: 5px;
             font-size: 14px;
+            text-align: center;
         }
+        
+        .image-counter {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .status-bar {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 14px;
+        }
+        
+        .zoom-controls {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+        
+        .zoom-controls button {
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
         @media (max-width: 768px) {
             .print-layout {
                 width: 100%;
                 height: auto;
-                aspect-ratio: 842 / 595;
+                aspect-ratio: 842/595;
             }
+            
             .controls {
                 flex-direction: column;
             }
-            .controls label, .controls button {
+            
+            .controls label, 
+            .controls button {
                 width: 100%;
                 text-align: center;
             }
+            
+            #imagePreview img {
+                max-width: 80px;
+                max-height: 80px;
+            }
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: black;
+        }
+        
+        /* Loading spinner */
+        .spinner {
+            display: none;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary-color);
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Help button */
+        .help-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+            z-index: 99;
+        }
+        
+        .help-btn:hover {
+            background-color: var(--primary-hover);
+            transform: scale(1.1);
         }
     </style>
 </head>
 <body>
-    <h1>Editor de Layout de Fotos Folha A4</h1>
-    <div class="controls">
-        <label for="imageInput">Selecionar Imagens</label>
-        <input type="file" id="imageInput" accept="image/*" multiple>
-        <div class="drop-zone" id="dropZone">
-            Arraste e solte imagens aqui ou clique para selecionar.
+    <div class="container">
+        <h1>Editor de Layout de Fotos para Folha A4</h1>
+        
+        <div class="controls">
+            <label for="imageInput" class="tooltip">
+                <span>Selecionar Imagens</span>
+                <span class="image-counter" id="imageCounter">0</span>
+                <span class="tooltiptext">Formatos suportados: JPG, PNG, GIF</span>
+            </label>
+            <input type="file" id="imageInput" accept="image/*" multiple>
+            
+            <div class="drop-zone" id="dropZone">
+                <span>Arraste e solte imagens aqui ou clique para selecionar.</span>
+            </div>
+            
+            <div id="opcoes">
+                <button class="btn btn-success" data-size="30x20">30x20 (1 foto)</button>
+                <button class="btn btn-success" data-size="20x25">20x25 (1 foto)</button>
+                <button class="btn btn-success" data-size="13x18">13x18 (2 fotos)</button>
+                <button class="btn btn-success" data-size="10x15">10x15 (2 fotos)</button>
+                <button class="btn btn-success" data-size="9x15">9x15 (4 fotos)</button>
+                <button class="btn btn-success" data-size="8x6">8x6 (9 fotos)</button>
+            </div>
+            
+            <button onclick="saveAsImage()" class="tooltip">
+                <span>Salvar como Imagem</span>
+                <span class="tooltiptext">Salva o layout atual como imagem PNG</span>
+            </button>
+            <button onclick="printLayout()" class="tooltip">
+                <span>Imprimir Layout</span>
+                <span class="tooltiptext">Abre a janela de impressão do navegador</span>
+            </button>
+            <button class="btn-danger" onclick="clearLayout()">Limpar Tudo</button>
         </div>
-        <div id="opcoes">
-            <button class="btn">30x20</button>
-            <button class="btn">20x25</button>
-            <button class="btn">13x18</button>
-            <button class="btn">10x15</button>
-            <button class="btn">9x15</button>
-            <button class="btn">8x6</button>
+        
+        <div class="copies-container">
+            <label for="copies">Cópias por imagem:</label>
+            <input type="number" id="copies" min="1" value="1">
         </div>
-       
-        <button onclick="saveAsImage()">Salvar como Imagem</button>
-        <button class="clear-button" onclick="clearLayout()">Limpar Tudo</button>
+        
+        <div class="zoom-controls">
+            <button onclick="zoomLayout(0.1)" title="Zoom In">+</button>
+            <button onclick="zoomLayout(-0.1)" title="Zoom Out">-</button>
+            <button onclick="resetZoom()" title="Reset Zoom">100%</button>
+        </div>
+        
+        <div id="imagePreview"></div>
+        
+        <div class="preview-container">
+            <h2>Pré-visualização do Layout</h2>
+            <div id="printPreview" class="print-layout"></div>
+        </div>
+        
+        <div class="status-bar" id="statusBar">
+            Pronto para começar. Selecione imagens e escolha um layout.
+        </div>
     </div>
-    <div class="copies-container">
-        <label for="copies">Cópias por imagem:</label>
-        <input type="number" id="copies" min="1" value="1">
+    
+    <div class="help-btn" onclick="showHelp()">?</div>
+    <div id="helpModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeHelp()">&times;</span>
+            <h2>Ajuda - Editor de Layout de Fotos</h2>
+            <p><strong>Como usar:</strong></p>
+            <ol>
+                <li>Selecione imagens clicando no botão ou arrastando para a área indicada</li>
+                <li>Escolha um layout pré-definido (30x20, 20x25, etc.)</li>
+                <li>Ajuste o número de cópias por imagem se necessário</li>
+                <li>Você pode arrastar as imagens no layout para reposicioná-las</li>
+                <li>Use os botões de zoom para ajustar a visualização</li>
+                <li>Salve como imagem ou imprima diretamente</li>
+            </ol>
+            <p><strong>Dicas:</strong></p>
+            <ul>
+                <li>Para melhores resultados, use imagens com proporções similares ao layout escolhido</li>
+                <li>Você pode combinar diferentes layouts na mesma folha</li>
+                <li>O sistema mantém a proporção original das imagens automaticamente</li>
+            </ul>
+        </div>
     </div>
-    <div id="imagePreview"></div>
-    <div class="preview-container">
-        <h2>Pré-visualização do Layout</h2>
-        <div id="printPreview" class="print-layout"></div>
-    </div>
-
+    
     <script>
+
         const imageInput = document.getElementById('imageInput');
         const dropZone = document.getElementById('dropZone');
         const imagePreview = document.getElementById('imagePreview');
         const printPreview = document.getElementById('printPreview');
         const copiesInput = document.getElementById('copies');
+        const imageCounter = document.getElementById('imageCounter');
+        const statusBar = document.getElementById('statusBar');
+        const helpModal = document.getElementById('helpModal');
 
         let images = [];
         let draggedImage = null;
+        let startX, startY, startLeft, startTop;
+        let currentZoom = 1;
 
-     
         const layouts = {
-            '30x20': [{ x: 0, y: 0, width: 842, height: 595 }],
-            '20x25': [{ x: 48, y: 0, width: 746, height: 595 }],
+            '30x20': [{x: 0, y: 0, width: 842, height: 595}],
+            '20x25': [{x: 48, y: 0, width: 746, height: 595}],
             '13x18': [
-                { x: 25, y: 20, width: 380, height: 539 },
-                { x: 440, y: 20, width: 380, height: 539 }
+                {x: 25, y: 20, width: 380, height: 539},
+                {x: 440, y: 20, width: 380, height: 539}
             ],
             '10x15': [
-                { x: 90, y: 80, width: 300, height: 436 },
-                { x: 441, y: 80, width: 300, height: 436 }
+                {x: 90, y: 80, width: 300, height: 436},
+                {x: 441, y: 80, width: 300, height: 436}
             ],
             '9x15': [
-                { x: 30, y: 20, width: 385, height: 268 },
-                { x: 30, y: 300, width: 385, height: 268 },
-                { x: 430, y: 20, width: 385, height: 268 },
-                { x: 430, y: 300, width: 385, height: 268 }
+                {x: 30, y: 20, width: 385, height: 268},
+                {x: 30, y: 300, width: 385, height: 268},
+                {x: 430, y: 20, width: 385, height: 268},
+                {x: 430, y: 300, width: 385, height: 268}
             ],
-            '8x6': Array.from({ length: 9 }, (_, i) => ({
+            '8x6': Array.from({length: 9}, (_, i) => ({
                 x: 51 + Math.floor(i / 3) * 260,
                 y: 47.5 + (i % 3) * 170,
                 width: 235,
@@ -218,78 +506,112 @@
             }))
         };
 
-    
         function loadImages(files) {
-            imagePreview.innerHTML = '';
-            printPreview.innerHTML = '';
-            images = [];
+            if (files.length === 0) return;
+            
+            updateStatus(`Carregando ${files.length} imagem(s)...`);
 
-            for (let file of files) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    img.onload = () => {
-                        images.push(img);
-                        updatePreview();
-                    };
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-       
-        imageInput.addEventListener('change', function(event) {
-            loadImages(event.target.files);
-        });
-
-        
-        dropZone.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            dropZone.classList.add('dragover');
-        });
-
-        dropZone.addEventListener('dragleave', function() {
-            dropZone.classList.remove('dragover');
-        });
-
-        dropZone.addEventListener('drop', function(e) {
-            e.preventDefault();
-            dropZone.classList.remove('dragover');
-            loadImages(e.dataTransfer.files);
-        });
-
-       
-        document.querySelectorAll('#opcoes .btn').forEach(button => {
-            button.addEventListener('click', () => {
-                const sizeText = button.textContent.trim();
-                let size;
-
-                if (sizeText.includes('30x20')) {
-                    size = '30x20';
-                } else if (sizeText.includes('8x6')) {
-                    size = '8x6';
-                } else {
-                    size = sizeText.split('-')[0].trim();
-                }
-
-                createLayout(size);
-            });
-        });
-
-        
-        function createLayout(size) {
-            printPreview.innerHTML = '';
-            const layout = layouts[size];
-
-            if (!layout) {
-                alert('Layout não encontrado!');
+            const imageFiles = Array.from(files).filter(file => 
+                file.type.match('image.*')
+            );
+            
+            if (imageFiles.length === 0) {
+                updateStatus('Nenhuma imagem válida encontrada.', 'error');
                 return;
             }
+            
+            imagePreview.innerHTML = '';
+            images = [];
+            
+            let loadedCount = 0;
+            
+            imageFiles.forEach(file => {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    
+                    img.onload = () => {
+                        images.push(img);
+                        loadedCount++;
+  
+                        const previewImg = document.createElement('img');
+                        previewImg.src = e.target.result;
+                        previewImg.title = `${file.name}\n${img.naturalWidth}x${img.naturalHeight}px`;
+                        previewImg.addEventListener('click', () => focusImage(img));
+                        imagePreview.appendChild(previewImg);
+                        
+                        if (loadedCount === imageFiles.length) {
+                            updateImageCounter();
+                            updateStatus(`${loadedCount} imagem(s) carregada(s) com sucesso!`, 'success');
 
-            const copies = parseInt(copiesInput.value, 10);
+                            if (loadedCount === 1) {
+                                suggestLayout(img);
+                            }
+                        }
+                    };
+                    
+                    img.onerror = () => {
+                        loadedCount++;
+                        updateStatus(`Erro ao carregar imagem: ${file.name}`, 'error');
+                    };
+                };
+                
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function suggestLayout(img) {
+            const ratio = img.naturalWidth / img.naturalHeight;
+            let suggestedLayout = null;
+
+            if (ratio > 1.4) {
+                suggestedLayout = '30x20'; 
+            } else if (ratio > 1.1) {
+                suggestedLayout = '20x25';
+            } else if (ratio > 0.7) {
+                suggestedLayout = '13x18'; 
+            } else {
+                suggestedLayout = '8x6'; 
+            }
+            
+            updateStatus(`Sugestão: usar layout ${suggestedLayout} para esta imagem`, 'info');
+
+            document.querySelectorAll('#opcoes button').forEach(btn => {
+                if (btn.dataset.size === suggestedLayout) {
+                    btn.classList.add('pulse');
+                    setTimeout(() => btn.classList.remove('pulse'), 2000);
+                }
+            });
+        }
+
+        function focusImage(img) {
+            console.log('Imagem focada:', img);
+        }
+
+        function updateImageCounter() {
+            imageCounter.textContent = images.length;
+            imageCounter.style.display = images.length > 0 ? 'inline-flex' : 'none';
+        }
+
+        function createLayout(size) {
+            if (images.length === 0) {
+                updateStatus('Nenhuma imagem carregada. Por favor, adicione imagens primeiro.', 'error');
+                return;
+            }
+            
+            printPreview.innerHTML = '';
+            const layout = layouts[size];
+            
+            if (!layout) {
+                updateStatus('Layout não encontrado!', 'error');
+                return;
+            }
+            
+            const copies = parseInt(copiesInput.value, 10) || 1;
             let imageIndex = 0;
-
+            
             for (let i = 0; i < layout.length; i++) {
                 if (images[imageIndex]) {
                     for (let j = 0; j < copies; j++) {
@@ -301,103 +623,294 @@
                         img.style.width = `${pos.width}px`;
                         img.style.height = `${pos.height}px`;
                         img.draggable = true;
+ 
+                        img.dataset.originalWidth = pos.width;
+                        img.dataset.originalHeight = pos.height;
+                        img.dataset.originalX = pos.x;
+                        img.dataset.originalY = pos.y;
+
                         img.addEventListener('mousedown', startDrag);
+                        img.addEventListener('touchstart', startDragTouch, {passive: false});
+                        
                         printPreview.appendChild(img);
                     }
                     imageIndex = (imageIndex + 1) % images.length;
                 }
             }
-
             
             printPreview.style.display = 'block';
+            updateStatus(`Layout ${size} criado com ${Math.min(images.length, layout.length)} imagem(s)`);
         }
 
-       
-        function adjustImages() {
-            Array.from(printPreview.children).forEach(img => {
-                adjustImageProportion(img);
-            });
+        function zoomLayout(amount) {
+            currentZoom += amount;
+            currentZoom = Math.max(0.5, Math.min(2, currentZoom)); // Limita entre 50% e 200%
+            
+            printPreview.style.transform = `scale(${currentZoom})`;
+            printPreview.style.transformOrigin = 'center';
+            
+            updateStatus(`Zoom: ${Math.round(currentZoom * 100)}%`);
         }
 
-      
-        function adjustImageProportion(img) {
-            const naturalWidth = img.naturalWidth;
-            const naturalHeight = img.naturalHeight;
-            const containerWidth = parseFloat(img.style.width);
-            const containerHeight = parseFloat(img.style.height);
-
-            const containerRatio = containerWidth / containerHeight;
-            const imageRatio = naturalWidth / naturalHeight;
-
-            if (containerRatio > imageRatio) {
-              
-                img.style.width = 'auto';
-                img.style.height = '100%';
-            } else {
-                
-                img.style.width = '100%';
-                img.style.height = 'auto';
-            }
+        function resetZoom() {
+            currentZoom = 1;
+            printPreview.style.transform = 'scale(1)';
+            updateStatus('Zoom resetado para 100%');
         }
-
 
         function startDrag(e) {
+            e.preventDefault();
             draggedImage = e.target;
+
+            startX = e.clientX;
+            startY = e.clientY;
+            startLeft = parseFloat(draggedImage.style.left);
+            startTop = parseFloat(draggedImage.style.top);
+            
+            draggedImage.classList.add('dragging');
+            
             document.addEventListener('mousemove', onDrag);
             document.addEventListener('mouseup', stopDrag);
         }
 
+        function startDragTouch(e) {
+            e.preventDefault();
+            if (e.touches.length !== 1) return;
+            
+            draggedImage = e.target;
+            const touch = e.touches[0];
+
+            startX = touch.clientX;
+            startY = touch.clientY;
+            startLeft = parseFloat(draggedImage.style.left);
+            startTop = parseFloat(draggedImage.style.top);
+            
+            draggedImage.classList.add('dragging');
+            
+            document.addEventListener('touchmove', onDragTouch, {passive: false});
+            document.addEventListener('touchend', stopDrag);
+        }
+
         function onDrag(e) {
-            if (draggedImage) {
-                const rect = printPreview.getBoundingClientRect();
-                const x = e.clientX - rect.left - draggedImage.offsetWidth / 2;
-                const y = e.clientY - rect.top - draggedImage.offsetHeight / 2;
-                draggedImage.style.left = `${x}px`;
-                draggedImage.style.top = `${y}px`;
-            }
+            if (!draggedImage) return;
+            
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            
+            draggedImage.style.left = `${startLeft + dx}px`;
+            draggedImage.style.top = `${startTop + dy}px`;
+        }
+
+        function onDragTouch(e) {
+            e.preventDefault();
+            if (!draggedImage || e.touches.length !== 1) return;
+            
+            const touch = e.touches[0];
+            const dx = touch.clientX - startX;
+            const dy = touch.clientY - startY;
+            
+            draggedImage.style.left = `${startLeft + dx}px`;
+            draggedImage.style.top = `${startTop + dy}px`;
         }
 
         function stopDrag() {
-            draggedImage = null;
+            if (draggedImage) {
+                draggedImage.classList.remove('dragging');
+                draggedImage = null;
+            }
+            
             document.removeEventListener('mousemove', onDrag);
+            document.removeEventListener('touchmove', onDragTouch);
             document.removeEventListener('mouseup', stopDrag);
+            document.removeEventListener('touchend', stopDrag);
         }
 
-   
         function saveAsImage() {
+            if (printPreview.children.length === 0) {
+                updateStatus('Nenhum layout para salvar. Crie um layout primeiro.', 'error');
+                return;
+            }
+            
+            updateStatus('Gerando imagem...');
+            
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-
-            
             const scale = 3; 
+            
             canvas.width = 842 * scale;
             canvas.height = 595 * scale;
+            
+
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
             ctx.scale(scale, scale);
 
-            
             Array.from(printPreview.children).forEach(img => {
                 const x = parseFloat(img.style.left);
                 const y = parseFloat(img.style.top);
                 const width = parseFloat(img.style.width);
                 const height = parseFloat(img.style.height);
-
+                
                 ctx.drawImage(img, x, y, width, height);
             });
 
-           
             const link = document.createElement('a');
-            link.download = `layout_impressao.png`;
-            link.href = canvas.toDataURL('image/png', 1.0); 
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            link.download = `layout-fotos-${timestamp}.png`;
+            link.href = canvas.toDataURL('image/png', 1.0);
+            
+            document.body.appendChild(link);
             link.click();
+            document.body.removeChild(link);
+            
+            updateStatus('Imagem salva com sucesso!', 'success');
         }
 
-      
-        function clearLayout() {
-            imagePreview.innerHTML = '';
-            printPreview.innerHTML = '';
-            images = [];
-            imageInput.value = '';
+        function printLayout() {
+            if (printPreview.children.length === 0) {
+                updateStatus('Nenhum layout para imprimir. Crie um layout primeiro.', 'error');
+                return;
+            }
+            
+            updateStatus('Preparando para impressão...');
+
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Impressão de Layout de Fotos</title>
+                    <style>
+                        body { margin: 0; padding: 0; }
+                        @page { size: A4; margin: 0; }
+                        .print-page { 
+                            width: 210mm; 
+                            height: 297mm; 
+                            position: relative; 
+                            overflow: hidden;
+                        }
+                        .print-page img {
+                            position: absolute;
+                            border: 1px solid #ddd;
+                            object-fit: cover;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="print-page">
+            `);
+            
+            Array.from(printPreview.children).forEach(img => {
+                const x = parseFloat(img.style.left) * 0.264583; // px to mm
+                const y = parseFloat(img.style.top) * 0.264583;
+                const width = parseFloat(img.style.width) * 0.264583;
+                const height = parseFloat(img.style.height) * 0.264583;
+                
+                printWindow.document.write(`
+                    <img src="${img.src}" 
+                         style="left:${x}mm; top:${y}mm; width:${width}mm; height:${height}mm;">
+                `);
+            });
+            
+            printWindow.document.write(`
+                    </div>
+     
+                        window.onload = function() {
+                            setTimeout(function() {
+                                window.print();
+                                window.close();
+                            }, 200);
+                        };
+ 
+            `);
+            
+            printWindow.document.close();
+            updateStatus('Janela de impressão aberta. Configure as opções de impressão.', 'info');
         }
+        
+        function clearLayout() {
+            if (images.length === 0 && printPreview.children.length === 0) {
+                updateStatus('Nada para limpar.', 'info');
+                return;
+            }
+            
+            if (confirm('Tem certeza que deseja limpar tudo? Isso removerá todas as imagens e layouts.')) {
+                imagePreview.innerHTML = '';
+                printPreview.innerHTML = '';
+                printPreview.style.display = 'none';
+                images = [];
+                imageInput.value = '';
+                updateImageCounter();
+                resetZoom();
+                updateStatus('Tudo limpo. Pronto para começar novamente.', 'success');
+            }
+        }
+
+        function updateStatus(message, type = 'info') {
+            statusBar.textContent = message;
+            statusBar.style.color = '';
+            statusBar.style.fontWeight = '';
+            
+            switch (type) {
+                case 'error':
+                    statusBar.style.color = 'var(--danger-color)';
+                    statusBar.style.fontWeight = 'bold';
+                    break;
+                case 'success':
+                    statusBar.style.color = 'var(--success-color)';
+                    break;
+                case 'info':
+                    statusBar.style.color = 'var(--primary-color)';
+                    break;
+            }
+        }
+        
+        function showHelp() {
+            helpModal.style.display = 'block';
+        }
+
+        function closeHelp() {
+            helpModal.style.display = 'none';
+        }
+
+        imageInput.addEventListener('change', function(event) {
+            loadImages(event.target.files);
+        });
+        
+        dropZone.addEventListener('click', function() {
+            imageInput.click();
+        });
+        
+        dropZone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+        
+        dropZone.addEventListener('dragleave', function() {
+            dropZone.classList.remove('dragover');
+        });
+        
+        dropZone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            loadImages(e.dataTransfer.files);
+        });
+        
+        document.querySelectorAll('#opcoes button').forEach(button => {
+            button.addEventListener('click', () => {
+                const size = button.dataset.size;
+                createLayout(size);
+            });
+        });
+
+        window.addEventListener('click', function(event) {
+            if (event.target === helpModal) {
+                closeHelp();
+            }
+        });
+
+        updateImageCounter();
     </script>
 </body>
 </html>
