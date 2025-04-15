@@ -281,6 +281,22 @@
             justify-content: center;
         }
         
+        .rotate-controls {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+        
+        .rotate-controls button {
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
         @media (max-width: 768px) {
             .print-layout {
                 width: 100%;
@@ -430,6 +446,11 @@
             <button onclick="resetZoom()" title="Reset Zoom">100%</button>
         </div>
         
+        <div class="rotate-controls">
+            <button onclick="rotateSelectedImage(90)" title="Rotacionar 90°">↻</button>
+            <button onclick="rotateSelectedImage(-90)" title="Rotacionar -90°">↺</button>
+        </div>
+        
         <div id="imagePreview"></div>
         
         <div class="preview-container">
@@ -454,6 +475,7 @@
                 <li>Ajuste o número de cópias por imagem se necessário</li>
                 <li>Você pode arrastar as imagens no layout para reposicioná-las</li>
                 <li>Use os botões de zoom para ajustar a visualização</li>
+                <li>Use os botões de rotação para girar as imagens selecionadas</li>
                 <li>Salve como imagem ou imprima diretamente</li>
             </ol>
             <p><strong>Dicas:</strong></p>
@@ -461,12 +483,12 @@
                 <li>Para melhores resultados, use imagens com proporções similares ao layout escolhido</li>
                 <li>Você pode combinar diferentes layouts na mesma folha</li>
                 <li>O sistema mantém a proporção original das imagens automaticamente</li>
+                <li>Clique em uma imagem no layout para selecioná-la antes de rotacionar</li>
             </ul>
         </div>
     </div>
     
     <script>
-
         const imageInput = document.getElementById('imageInput');
         const dropZone = document.getElementById('dropZone');
         const imagePreview = document.getElementById('imagePreview');
@@ -478,6 +500,7 @@
 
         let images = [];
         let draggedImage = null;
+        let selectedImage = null;
         let startX, startY, startLeft, startTop;
         let currentZoom = 1;
 
@@ -587,7 +610,60 @@
         }
 
         function focusImage(img) {
-            console.log('Imagem focada:', img);
+         
+            const imgs = Array.from(printPreview.querySelectorAll('img'));
+            const foundImg = imgs.find(i => i.src === img.src);
+            
+            if (foundImg) {
+                selectImage(foundImg);
+         
+                foundImg.style.boxShadow = '0 0 0 3px var(--primary-color)';
+                setTimeout(() => {
+                    if (selectedImage !== foundImg) {
+                        foundImg.style.boxShadow = '';
+                    }
+                }, 2000);
+            }
+        }
+
+        function selectImage(img) {
+           
+            if (selectedImage) {
+                selectedImage.style.boxShadow = '';
+            }
+            
+           
+            selectedImage = img;
+            
+            if (selectedImage) {
+                selectedImage.style.boxShadow = '0 0 0 3px var(--primary-color)';
+                updateStatus('Imagem selecionada. Use os botões de rotação para ajustar.', 'info');
+            }
+        }
+
+        function rotateSelectedImage(degrees) {
+            if (!selectedImage) {
+                updateStatus('Nenhuma imagem selecionada. Clique em uma imagem no layout para selecioná-la.', 'error');
+                return;
+            }
+            
+       
+            let currentRotation = 0;
+            const transform = selectedImage.style.transform;
+            if (transform) {
+                const match = transform.match(/rotate\((\d+)deg\)/);
+                if (match) {
+                    currentRotation = parseInt(match[1], 10);
+                }
+            }
+            
+           
+            const newRotation = currentRotation + degrees;
+            
+ 
+            selectedImage.style.transform = `rotate(${newRotation}deg)`;
+            
+            updateStatus(`Imagem rotacionada em ${degrees}°. Rotação atual: ${newRotation}°`, 'success');
         }
 
         function updateImageCounter() {
@@ -602,6 +678,7 @@
             }
             
             printPreview.innerHTML = '';
+            selectedImage = null;
             const layout = layouts[size];
             
             if (!layout) {
@@ -629,8 +706,14 @@
                         img.dataset.originalX = pos.x;
                         img.dataset.originalY = pos.y;
 
-                        img.addEventListener('mousedown', startDrag);
-                        img.addEventListener('touchstart', startDragTouch, {passive: false});
+                        img.addEventListener('mousedown', (e) => {
+                            startDrag(e);
+                            selectImage(e.target);
+                        });
+                        img.addEventListener('touchstart', (e) => {
+                            startDragTouch(e);
+                            selectImage(e.target);
+                        }, {passive: false});
                         
                         printPreview.appendChild(img);
                     }
@@ -740,7 +823,6 @@
             canvas.width = 842 * scale;
             canvas.height = 595 * scale;
             
-
             ctx.fillStyle = 'white';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
@@ -752,7 +834,26 @@
                 const width = parseFloat(img.style.width);
                 const height = parseFloat(img.style.height);
                 
-                ctx.drawImage(img, x, y, width, height);
+     
+                ctx.save();
+                
+        
+                ctx.translate(x + width/2, y + height/2);
+                
+        
+                const transform = img.style.transform;
+                if (transform && transform.includes('rotate')) {
+                    const match = transform.match(/rotate\((\d+)deg\)/);
+                    if (match) {
+                        const degrees = parseInt(match[1], 10);
+                        ctx.rotate(degrees * Math.PI / 180);
+                    }
+                }
+     
+                ctx.drawImage(img, -width/2, -height/2, width, height);
+                
+     
+                ctx.restore();
             });
 
             const link = document.createElement('a');
@@ -807,22 +908,32 @@
                 const width = parseFloat(img.style.width) * 0.264583;
                 const height = parseFloat(img.style.height) * 0.264583;
                 
+             
+                let transformStyle = '';
+                const transform = img.style.transform;
+                if (transform && transform.includes('rotate')) {
+                    const match = transform.match(/rotate\((\d+)deg\)/);
+                    if (match) {
+                        transformStyle = `transform: rotate(${match[1]}deg); transform-origin: center;`;
+                    }
+                }
+                
                 printWindow.document.write(`
                     <img src="${img.src}" 
-                         style="left:${x}mm; top:${y}mm; width:${width}mm; height:${height}mm;">
+                         style="left:${x}mm; top:${y}mm; width:${width}mm; height:${height}mm; ${transformStyle}">
                 `);
             });
             
             printWindow.document.write(`
                     </div>
-     
+
                         window.onload = function() {
                             setTimeout(function() {
                                 window.print();
                                 window.close();
                             }, 200);
                         };
- 
+
             `);
             
             printWindow.document.close();
@@ -840,6 +951,7 @@
                 printPreview.innerHTML = '';
                 printPreview.style.display = 'none';
                 images = [];
+                selectedImage = null;
                 imageInput.value = '';
                 updateImageCounter();
                 resetZoom();
