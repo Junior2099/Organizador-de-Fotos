@@ -119,7 +119,7 @@
             border: 2px solid var(--border-color);
             border-radius: 5px;
             cursor: grab;
-            object-fit: cover;
+            object-fit: contain;
             transition: transform 0.2s;
         }
         
@@ -146,7 +146,7 @@
             border: 2px solid var(--border-color);
             border-radius: 5px;
             cursor: grab;
-            object-fit: cover;
+            object-fit: contain;
             transition: all 0.2s;
             z-index: 1;
         }
@@ -354,23 +354,6 @@
         
         .close:hover {
             color: black;
-        }
-        
-        /* Loading spinner */
-        .spinner {
-            display: none;
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            border-radius: 50%;
-            border-top: 4px solid var(--primary-color);
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
         }
         
         /* Help button */
@@ -610,13 +593,11 @@
         }
 
         function focusImage(img) {
-         
             const imgs = Array.from(printPreview.querySelectorAll('img'));
             const foundImg = imgs.find(i => i.src === img.src);
             
             if (foundImg) {
                 selectImage(foundImg);
-         
                 foundImg.style.boxShadow = '0 0 0 3px var(--primary-color)';
                 setTimeout(() => {
                     if (selectedImage !== foundImg) {
@@ -627,12 +608,10 @@
         }
 
         function selectImage(img) {
-           
             if (selectedImage) {
                 selectedImage.style.boxShadow = '';
             }
             
-           
             selectedImage = img;
             
             if (selectedImage) {
@@ -647,7 +626,6 @@
                 return;
             }
             
-       
             let currentRotation = 0;
             const transform = selectedImage.style.transform;
             if (transform) {
@@ -657,11 +635,16 @@
                 }
             }
             
-           
             const newRotation = currentRotation + degrees;
-            
- 
             selectedImage.style.transform = `rotate(${newRotation}deg)`;
+            
+      
+            const rotatedAngle = ((newRotation % 360) + 360) % 360; // Normaliza para 0-360
+            if (rotatedAngle === 90 || rotatedAngle === 270) {
+                selectedImage.style.objectFit = 'cover';
+            } else {
+                selectedImage.style.objectFit = 'contain';
+            }
             
             updateStatus(`Imagem rotacionada em ${degrees}°. Rotação atual: ${newRotation}°`, 'success');
         }
@@ -689,6 +672,9 @@
             const copies = parseInt(copiesInput.value, 10) || 1;
             let imageIndex = 0;
             
+          
+            const isVerticalLayout = size === '13x18' || size === '10x15';
+            
             for (let i = 0; i < layout.length; i++) {
                 if (images[imageIndex]) {
                     for (let j = 0; j < copies; j++) {
@@ -700,7 +686,23 @@
                         img.style.width = `${pos.width}px`;
                         img.style.height = `${pos.height}px`;
                         img.draggable = true;
- 
+                        img.style.objectFit = 'contain'; // Padrão
+
+                        
+                        if (isVerticalLayout) {
+                            const imgElement = images[imageIndex];
+                            const isLandscape = imgElement.naturalWidth > imgElement.naturalHeight;
+                            
+                            if (isLandscape) {
+                                
+                                img.style.transform = 'rotate(90deg)';
+                                img.style.objectFit = 'cover';
+                               
+                                img.style.left = `${pos.x + pos.width/2 - pos.height/2}px`;
+                                img.style.top = `${pos.y + pos.height/2 - pos.width/2}px`;
+                            }
+                        }
+
                         img.dataset.originalWidth = pos.width;
                         img.dataset.originalHeight = pos.height;
                         img.dataset.originalX = pos.x;
@@ -834,13 +836,9 @@
                 const width = parseFloat(img.style.width);
                 const height = parseFloat(img.style.height);
                 
-     
                 ctx.save();
-                
-        
                 ctx.translate(x + width/2, y + height/2);
                 
-        
                 const transform = img.style.transform;
                 if (transform && transform.includes('rotate')) {
                     const match = transform.match(/rotate\((\d+)deg\)/);
@@ -849,10 +847,8 @@
                         ctx.rotate(degrees * Math.PI / 180);
                     }
                 }
-     
-                ctx.drawImage(img, -width/2, -height/2, width, height);
                 
-     
+                ctx.drawImage(img, -width/2, -height/2, width, height);
                 ctx.restore();
             });
 
@@ -894,7 +890,7 @@
                         .print-page img {
                             position: absolute;
                             border: 1px solid #ddd;
-                            object-fit: cover;
+                            object-fit: contain;
                         }
                     </style>
                 </head>
@@ -908,7 +904,6 @@
                 const width = parseFloat(img.style.width) * 0.264583;
                 const height = parseFloat(img.style.height) * 0.264583;
                 
-             
                 let transformStyle = '';
                 const transform = img.style.transform;
                 if (transform && transform.includes('rotate')) {
@@ -926,14 +921,14 @@
             
             printWindow.document.write(`
                     </div>
-
+              
                         window.onload = function() {
                             setTimeout(function() {
                                 window.print();
                                 window.close();
                             }, 200);
                         };
-
+              
             `);
             
             printWindow.document.close();
