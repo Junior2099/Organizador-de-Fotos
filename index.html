@@ -3,109 +3,98 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="icon" type="image/png" sizes="32x32" href="https://img.icons8.com/?size=100&id=12785&format=png&color=000000">
-<title>Layouts A4 — 6x(9,89), 4x(9x13), 2x(13x18)</title>
+<title>Layouts A4 — 6x(9x9), 4x(9x13), 2x(13x18)</title>
 <style>
 :root{
   --page-w: 21cm;
   --page-h: 29.7cm;
-  --preview-scale: 0.6;
+  --preview-scale: 0.62;
   --slot-border: 0.5mm dashed #bbb;
 
-  --slot-w: 9.89cm;
-  --slot-h: 9.89cm;
+  --page-margin: 1.2cm;
+  --slot-gap: 0.6cm;
+  --slot-w: 9cm;
+  --slot-h: 9cm;
   --grid-cols: 2;
   --grid-rows: 3;
 }
+
 *{ box-sizing: border-box; }
-html, body{ height: 100%; }
+html,body{ height:100%; }
 body{
   margin: 16px;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  background: #f4f6f8;
-  color: #0f172a;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  background:#f4f6f8;
+  color:#0f172a;
 }
 .toolbar{
   position: sticky; top: 0;
-  display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
-  padding: 10px 12px; margin-bottom: 14px; border-radius: 10px;
-  background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  display:flex; flex-wrap:wrap; gap:12px; align-items:center;
+  padding:10px 12px; margin-bottom:14px; border-radius:10px;
+  background:#fff; box-shadow:0 1px 4px rgba(0,0,0,0.06);
 }
-.toolbar label{ display: inline-flex; align-items: center; gap: 6px; }
-.toolbar input[type="file"]{ padding: 6px 0; }
-.toolbar select{
-  padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px; background: #fff;
-}
-.toolbar button{
-  padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; background: #fff; cursor: pointer;
-}
-.toolbar button:hover{ background: #f1f5f9; }
-.zoom{ display: inline-flex; align-items: center; gap: 8px; }
-.zoom input[type="range"]{ width: 150px; }
+.toolbar label{ display:inline-flex; align-items:center; gap:6px; }
+.toolbar select, .toolbar input[type="file"]{ padding:6px 8px; border-radius:8px; border:1px solid #cbd5e1; background:#fff; }
+.toolbar button{ padding:8px 12px; border-radius:8px; border:1px solid #cbd5e1; background:#fff; cursor:pointer; }
+.zoom{ display:inline-flex; align-items:center; gap:8px; }
+.zoom input[type="range"]{ width:150px; }
 
-.wrapper{ display: grid; place-items: center; }
+.wrapper{ display:grid; place-items:center; }
 .frame{
   width: calc(var(--page-w) * var(--preview-scale));
   height: calc(var(--page-h) * var(--preview-scale));
   overflow: hidden;
-  border-radius: 12px;
+  border-radius:12px;
   box-shadow: 0 8px 24px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06);
-  background: #ddd;
+  background:#ddd;
 }
+
+
 .page{
   width: var(--page-w);
   height: var(--page-h);
-  background: #fff;
+  background:#fff;
   transform: scale(var(--preview-scale));
   transform-origin: top left;
   position: relative;
+  padding: var(--page-margin);
+  display: grid;
+  place-items: center;
 }
 
+
 .grid{
-  position: absolute;
-  inset: 0;
-  width: calc(var(--grid-cols) * var(--slot-w));
-  height: calc(var(--grid-rows) * var(--slot-h));
-  margin: auto;
   display: grid;
   grid-template-columns: repeat(var(--grid-cols), var(--slot-w));
   grid-template-rows: repeat(var(--grid-rows), var(--slot-h));
-  gap: 0;
+  gap: var(--slot-gap);
+  align-items: center;
+  justify-items: center;
+  background: transparent;
 }
 .slot{
   width: var(--slot-w);
   height: var(--slot-h);
-  background: #fff;
+  background:#fff;
   border: var(--slot-border);
   position: relative;
-  overflow: hidden;
-  display: grid; place-items: center;
+  overflow:hidden;
+  display:grid; place-items:center;
 }
-.slot.filled{ background: #fff; }
 .slot img{
-  width: 100%;
-  height: 100%;
-  display: block;
-  user-select: none;
-  object-position: center center; 
+  width:100%; height:100%; display:block; object-position:center center; user-select:none;
 }
 .slot .overlay-input{
-  position: absolute; inset: 0;
-  opacity: 0;
-  cursor: pointer;
+  position:absolute; inset:0; opacity:0; cursor:pointer;
 }
 
-.hint{
-  margin-top: 10px;
-  color: #475569;
-  font-size: 0.95rem;
-}
+.hint{ margin-top:10px; color:#475569; font-size:0.95rem; }
 
 @media print{
-  body{ margin: 0; background: #fff; }
-  .toolbar, .hint, .frame{ display: none !important; }
-  .page{ width: var(--page-w); height: var(--page-h); transform: none !important; }
-  @page{ size: A4; margin: 0; }
+  body{ margin:0; background:#fff; }
+  .toolbar, .hint, .frame{ display:none !important; }
+  .page{ width:var(--page-w); height:var(--page-h); transform:none !important; padding:0; }
+  @page{ size:A4; margin:0; }
 }
 </style>
 </head>
@@ -113,24 +102,27 @@ body{
   <div class="toolbar">
     <label>Layout:
       <select id="layout">
-        <option value="sixSquare">6 x 9,89 × 9,89 cm (2×3)</option>
+        <option value="sixSquare">6 x 9 × 9 cm (2×3)</option>
         <option value="four9x13">4 x 9 × 13 cm (2×2)</option>
         <option value="two13x18">2 x 13 × 18 cm (1×2, paisagem)</option>
       </select>
     </label>
+
     <input id="fileInput" type="file" accept="image/*" multiple />
-    <label><input type="radio" name="fit" value="cover" checked /> Preencher (corta)</label>
-    <label><input type="radio" name="fit" value="contain" /> Ajustar (sem cortes)</label>
-    <label><input type="radio" name="fit" value="fill" /> Esticar (deforma)</label>
-    <label><input type="checkbox" id="toggleBorders" checked /> Mostrar bordas</label>
+    <label><input type="radio" name="fit" value="cover" checked /> Preencher</label>
+    <label><input type="radio" name="fit" value="contain" /> Ajustar</label>
+    <label><input type="radio" name="fit" value="fill" /> Esticar</label>
+    <label><input type="checkbox" id="toggleBorders" checked /> Bordas</label>
+
     <div class="zoom">
       <span>Zoom:</span>
-      <input id="zoom" type="range" min="0.35" max="1" step="0.05" value="0.6" />
-      <span id="zoomVal">60%</span>
+      <input id="zoom" type="range" min="0.35" max="1" step="0.01" value="0.62" />
+      <span id="zoomVal">62%</span>
     </div>
+
     <button id="clearBtn">Limpar</button>
-    <button id="savePngBtn">Salvar como PNG</button>
-    <button id="savePdfBtn">Salvar como PDF</button>
+    <button id="savePngBtn">Salvar PNG</button>
+    <button id="savePdfBtn">Salvar PDF</button>
   </div>
 
   <div class="wrapper">
@@ -141,13 +133,12 @@ body{
     </div>
   </div>
 
-  <div class="hint">
-    Modos de encaixe agora aplicados inline por imagem e preview respeita EXIF (fotos em pé).
-  </div>
+  <div class="hint">Ajuste o layout / margens em cima se quiser um espaçamento diferente.</div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
-const rootStyle = document.documentElement.style;
+
+const root = document.documentElement;
 const gridEl = document.getElementById('grid');
 const fileInput = document.getElementById('fileInput');
 const fitInputs = document.querySelectorAll('input[name="fit"]');
@@ -162,33 +153,33 @@ const layoutSelect = document.getElementById('layout');
 let currentFitMode = 'cover';
 let slots = [];
 
+const PX_PER_CM = 300 / 2.54;
+const PAGE_W_CM = 21;
+const PAGE_H_CM = 29.7;
+
 const LAYOUTS = {
-  sixSquare: { cols: 2, rows: 3, slotW: 9.89, slotH: 9.89, count: 6 },
-  four9x13: { cols: 2, rows: 2, slotW: 9,    slotH: 13,   count: 4 },
-  two13x18: { cols: 1, rows: 2, slotW: 18,   slotH: 13,   count: 2 },
+  sixSquare:  { cols: 2, rows: 3, slotW: 9.0, slotH: 9.0, gap: 0.6, count: 6 },
+  four9x13:   { cols: 2, rows: 2, slotW: 9.0, slotH: 13.0, gap: 0.6, count: 4 },
+  two13x18:   { cols: 1, rows: 2, slotW: 18.0, slotH: 13.0, gap: 0.6, count: 2 }
 };
 
-function setBorders(visible){
-  rootStyle.setProperty('--slot-border', visible ? '0.5mm dashed #bbb' : '0px solid transparent');
+function setCSSVar(name, value){ root.style.setProperty(name, value); }
+function getComputedCm(varName){
+  const v = getComputedStyle(root).getPropertyValue(varName).trim();
+  return parseFloat(v) || 0;
 }
-
-function applyFitStyles(img, mode){
-  img.style.objectFit = mode;        
-  img.style.objectPosition = 'center'; 
-}
+function cmToPx(cm){ return Math.round(cm * PX_PER_CM); }
 
 function buildSlots(count){
   gridEl.innerHTML = '';
-  for (let i = 0; i < count; i++){
+  for (let i=0;i<count;i++){
     const slot = document.createElement('div');
     slot.className = 'slot';
     const overlay = document.createElement('input');
-    overlay.type = 'file';
-    overlay.accept = 'image/*';
-    overlay.className = 'overlay-input';
+    overlay.type = 'file'; overlay.accept = 'image/*'; overlay.className = 'overlay-input';
     overlay.addEventListener('change', async () => {
       const file = overlay.files[0];
-      await placeImageInSlot(file, slot);
+      if (file) await placeImageInSlot(file, slot);
       overlay.value = '';
     });
     slot.appendChild(overlay);
@@ -203,42 +194,48 @@ function applyLayout(key, keepImages = true){
 
   const srcs = keepImages ? slots.map(s => s.querySelector('img')?.src || null) : [];
 
-  rootStyle.setProperty('--grid-cols', String(cfg.cols));
-  rootStyle.setProperty('--grid-rows', String(cfg.rows));
-  rootStyle.setProperty('--slot-w', cfg.slotW + 'cm');
-  rootStyle.setProperty('--slot-h', cfg.slotH + 'cm');
+  setCSSVar('--grid-cols', cfg.cols);
+  setCSSVar('--grid-rows', cfg.rows);
+  setCSSVar('--slot-w', cfg.slotW + 'cm');
+  setCSSVar('--slot-h', cfg.slotH + 'cm');
+  setCSSVar('--slot-gap', cfg.gap + 'cm');
 
   buildSlots(cfg.count);
 
   if (keepImages && srcs.length){
     srcs.slice(0, slots.length).forEach((src, idx) => {
-      if (!src) return;
-      placeSrcInSlot(src, slots[idx]);
+      if (src) placeSrcInSlot(src, slots[idx]);
     });
   }
-
-  slots.forEach(slot => {
-    const img = slot.querySelector('img');
-    if (img) applyFitStyles(img, currentFitMode);
-  });
 }
 
+function setBorders(visible){
+  setCSSVar('--slot-border', visible ? '0.5mm dashed #bbb' : '0px solid transparent');
+}
+
+function applyFitStyles(img, mode){
+  img.style.objectFit = mode;
+  img.style.objectPosition = 'center';
+}
+
+
 async function fileToOrientedDataUrl(file){
-  if ('createImageBitmap' in window) {
-    try{
+  if ('createImageBitmap' in window){
+    try {
       const bmp = await createImageBitmap(file, { imageOrientation: 'from-image' });
-      const canvas = document.createElement('canvas');
-      canvas.width = bmp.width;
-      canvas.height = bmp.height;
-      const ctx = canvas.getContext('2d');
+      const c = document.createElement('canvas');
+      c.width = bmp.width; c.height = bmp.height;
+      const ctx = c.getContext('2d');
       ctx.drawImage(bmp, 0, 0);
-      if ('close' in bmp) try{ bmp.close(); }catch(e){}
-      return await new Promise(resolve => canvas.toBlob(b => resolve(URL.createObjectURL(b)), 'image/png', 1));
-    }catch(e){
+      if (bmp.close) try{ bmp.close(); }catch(e){}
+      return await new Promise(resolve => c.toBlob(b => resolve(URL.createObjectURL(b)), 'image/png'));
+    } catch(e){
+
     }
   }
   return URL.createObjectURL(file);
 }
+
 
 function placeSrcInSlot(src, slot){
   let img = slot.querySelector('img');
@@ -247,185 +244,166 @@ function placeSrcInSlot(src, slot){
     img.alt = '';
     img.decoding = 'async';
     img.loading = 'eager';
-    img.addEventListener('load', () => applyFitStyles(img, currentFitMode));
-    img.style.width = '100%';
-    img.style.height = '100%';
     slot.appendChild(img);
   }
   img.src = src;
   applyFitStyles(img, currentFitMode);
-  slot.classList.add('filled');
 }
+
 
 async function placeImageInSlot(file, slot){
   if (!file) return;
-  const orientedUrl = await fileToOrientedDataUrl(file);
-  placeSrcInSlot(orientedUrl, slot);
+  const url = await fileToOrientedDataUrl(file);
+  placeSrcInSlot(url, slot);
 }
+
 
 fileInput.addEventListener('change', async () => {
   const files = Array.from(fileInput.files).slice(0, slots.length);
-  for (let i = 0; i < files.length; i++){
+  for (let i=0;i<files.length;i++){
     const slot = slots[i];
     if (slot) await placeImageInSlot(files[i], slot);
   }
 });
 
-function setFitMode(mode){
-  currentFitMode = mode;
-  slots.forEach(slot => {
-    const img = slot.querySelector('img');
-    if (img) applyFitStyles(img, mode);
-  });
-}
 fitInputs.forEach(r => r.addEventListener('change', () => {
-  const mode = document.querySelector('input[name="fit"]:checked')?.value || 'cover';
-  setFitMode(mode);
+  currentFitMode = document.querySelector('input[name="fit"]:checked')?.value || 'cover';
+  slots.forEach(s => { const img = s.querySelector('img'); if (img) applyFitStyles(img, currentFitMode); });
 }));
+
 
 toggleBorders.addEventListener('change', () => setBorders(toggleBorders.checked));
 
+
 clearBtn.addEventListener('click', () => {
-  slots.forEach(slot => {
-    const img = slot.querySelector('img');
-    if (img) img.remove();
-    slot.classList.remove('filled');
-  });
+  slots.forEach(s => s.querySelector('img')?.remove());
   fileInput.value = '';
 });
 
+
 function updateZoom(v){
-  const num = Number(v);
-  rootStyle.setProperty('--preview-scale', String(num));
-  zoomVal.textContent = Math.round(num * 100) + '%';
+  root.style.setProperty('--preview-scale', String(v));
+  zoomVal.textContent = Math.round(v*100) + '%';
 }
 zoomRange.addEventListener('input', (e) => updateZoom(e.target.value));
 
-const PX_PER_CM = 96 / 2.54; 
-const PAGE_W_CM = 21;
-const PAGE_H_CM = 29.7;
-
-function cmToPx(cm){ return Math.round(cm * PX_PER_CM); }
-
-function getSlotImages(){
-  return slots.map(slot => slot.querySelector('img') || null);
-}
 async function ensureImagesDecoded(imgs){
-  const decodes = imgs.filter(Boolean).map(img => (img.decode ? img.decode().catch(() => {}) : Promise.resolve()));
-  await Promise.all(decodes);
+  const decs = imgs.map(img => {
+    if (!img) return Promise.resolve();
+    return img.decode ? img.decode().catch(()=>{}) : Promise.resolve();
+  });
+  await Promise.all(decs);
 }
 
-function currentLayoutConfig(){
-  const key = layoutSelect.value;
-  return LAYOUTS[key];
-}
-
-function drawImageCover(ctx, src, dx, dy, dw, dh){
-  const sw = src.naturalWidth || src.width;
-  const sh = src.naturalHeight || src.height;
-  if (!sw || !sh) return;
-  const scale = Math.max(dw / sw, dh / sh);
-  const sWidth = Math.round(dw / scale);
-  const sHeight = Math.round(dh / scale);
-  const sx = Math.max(0, Math.round((sw - sWidth) / 2));
-  const sy = Math.max(0, Math.round((sh - sHeight) / 2));
-  ctx.drawImage(src, sx, sy, sWidth, sHeight, dx, dy, dw, dh);
-}
-function drawImageContain(ctx, src, dx, dy, dw, dh){
-  const sw = src.naturalWidth || src.width;
-  const sh = src.naturalHeight || src.height;
-  if (!sw || !sh) return;
-  const scale = Math.min(dw / sw, dh / sh);
-  const drawW = Math.round(sw * scale);
-  const drawH = Math.round(sh * scale);
-  const x = dx + Math.round((dw - drawW) / 2);
-  const y = dy + Math.round((dh - drawH) / 2);
-  ctx.fillStyle = '#FFFFFF';
-  ctx.fillRect(dx, dy, dw, dh);
-  ctx.drawImage(src, x, y, drawW, drawH);
-}
-function drawImageFill(ctx, src, dx, dy, dw, dh){
-  ctx.drawImage(src, dx, dy, dw, dh);
-}
+function currentLayoutConfig(){ return LAYOUTS[layoutSelect.value]; }
 
 async function renderToCanvas(){
+
+  const pageWpx = cmToPx(PAGE_W_CM);
+  const pageHpx = cmToPx(PAGE_H_CM);
   const canvas = document.createElement('canvas');
-  const pageW = cmToPx(PAGE_W_CM);
-  const pageH = cmToPx(PAGE_H_CM);
-  canvas.width = pageW;
-  canvas.height = pageH;
+  canvas.width = pageWpx; canvas.height = pageHpx;
   const ctx = canvas.getContext('2d');
 
-  ctx.fillStyle = '#FFFFFF';
-  ctx.fillRect(0, 0, pageW, pageH);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
 
   const cfg = currentLayoutConfig();
-  const gridW = cmToPx(cfg.slotW * cfg.cols);
-  const gridH = cmToPx(cfg.slotH * cfg.rows);
-  const left = Math.round((pageW - gridW) / 2);
-  const top  = Math.round((pageH - gridH) / 2);
   const slotWpx = cmToPx(cfg.slotW);
   const slotHpx = cmToPx(cfg.slotH);
+  const gapPx = cmToPx(cfg.gap);
 
-  const imgs = getSlotImages();
+  const pageMarginCm = getComputedCm('--page-margin') || 1.2;
+  const pageMarginPx = cmToPx(pageMarginCm);
+
+  const innerW = pageWpx - 2 * pageMarginPx;
+  const innerH = pageHpx - 2 * pageMarginPx;
+
+  const totalW = cfg.cols * slotWpx + (cfg.cols - 1) * gapPx;
+  const totalH = cfg.rows * slotHpx + (cfg.rows - 1) * gapPx;
+
+  const startX = Math.round(pageMarginPx + Math.max(0, (innerW - totalW) / 2));
+  const startY = Math.round(pageMarginPx + Math.max(0, (innerH - totalH) / 2));
+
+  const imgs = slots.map(s => s.querySelector('img') || null);
   await ensureImagesDecoded(imgs);
 
-  let idx = 0;
-  for (let r = 0; r < cfg.rows; r++){
-    for (let c = 0; c < cfg.cols; c++){
-      const img = imgs[idx++];
+  for (let r = 0, idx = 0; r < cfg.rows; r++){
+    for (let c = 0; c < cfg.cols; c++, idx++){
+      const img = imgs[idx];
+      const dx = startX + c * (slotWpx + gapPx);
+      const dy = startY + r * (slotHpx + gapPx);
+      const dw = slotWpx;
+      const dh = slotHpx;
+
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(dx, dy, dw, dh);
+
       if (!img) continue;
-      const dx = left + c * slotWpx;
-      const dy = top  + r * slotHpx;
-      if (currentFitMode === 'fill')      drawImageFill(ctx, img, dx, dy, slotWpx, slotHpx);
-      else if (currentFitMode === 'contain') drawImageContain(ctx, img, dx, dy, slotWpx, slotHpx);
-      else                                 drawImageCover(ctx, img, dx, dy, slotWpx, slotHpx);
+
+      const sw = img.naturalWidth || img.width;
+      const sh = img.naturalHeight || img.height;
+      if (!sw || !sh) continue;
+
+      if (currentFitMode === 'fill'){
+        ctx.drawImage(img, dx, dy, dw, dh);
+      } else if (currentFitMode === 'contain'){
+        const scale = Math.min(dw / sw, dh / sh);
+        const drawW = Math.round(sw * scale);
+        const drawH = Math.round(sh * scale);
+        const sx = Math.round(dx + (dw - drawW) / 2);
+        const sy = Math.round(dy + (dh - drawH) / 2);
+        ctx.drawImage(img, 0, 0, sw, sh, sx, sy, drawW, drawH);
+      } else {
+        const scale = Math.max(dw / sw, dh / sh);
+        const sW = Math.round(dw / scale);
+        const sH = Math.round(dh / scale);
+        const sX = Math.round(Math.max(0, (sw - sW) / 2));
+        const sY = Math.round(Math.max(0, (sh - sH) / 2));
+        ctx.drawImage(img, sX, sY, sW, sH, dx, dy, dw, dh);
+      }
     }
   }
+
   return canvas;
 }
 
 function downloadBlob(blob, filename){
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
   URL.revokeObjectURL(url);
 }
 
 savePngBtn.addEventListener('click', async () => {
-  const canvas = await renderToCanvas();
-  canvas.toBlob((blob) => {
-    if (!blob) return;
-    const key = layoutSelect.value;
-    downloadBlob(blob, `pagina-a4-${key}.png`);
-  }, 'image/png', 1.0);
+  try {
+    const canvas = await renderToCanvas();
+    canvas.toBlob(blob => {
+      if (!blob) return;
+      downloadBlob(blob, `pagina-a4-${layoutSelect.value}.png`);
+    }, 'image/png', 1.0);
+  } catch (e){ console.error(e); alert('Erro ao gerar PNG: ' + e.message); }
 });
 
 savePdfBtn.addEventListener('click', async () => {
-  const canvas = await renderToCanvas();
-  const dataUrl = canvas.toDataURL('image/png');
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-  doc.addImage(dataUrl, 'PNG', 0, 0, 210, 297);
-  const key = layoutSelect.value;
-  doc.save(`pagina-a4-${key}.pdf`);
+  try {
+    const canvas = await renderToCanvas();
+    const dataUrl = canvas.toDataURL('image/png');
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    doc.addImage(dataUrl, 'PNG', 0, 0, 210, 297);
+    doc.save(`pagina-a4-${layoutSelect.value}.pdf`);
+  } catch (e){ console.error(e); alert('Erro ao gerar PDF: ' + e.message); }
 });
 
 function init(){
-  setFitMode('cover');
   setBorders(true);
   updateZoom(zoomRange.value);
   applyLayout(layoutSelect.value, false);
 }
 layoutSelect.addEventListener('change', () => applyLayout(layoutSelect.value, true));
-function setFitMode(mode){ currentFitMode = mode; slots.forEach(s => { const img = s.querySelector('img'); if (img) applyFitStyles(img, mode); }); }
-zoomRange.value = '0.6';
 init();
 </script>
 </body>
 </html>
-
