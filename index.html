@@ -632,7 +632,7 @@ main {
   user-select: none;
   touch-action: none;
   transition: box-shadow 0.2s;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .canvas-item img {
@@ -647,8 +647,69 @@ main {
   z-index: 40;
 }
 
+/* ALÇA DE REDIMENSIONAMENTO TOUCH NO CANTO DA FOTO */
+.resize-handle {
+  position: absolute;
+  bottom: -10px;
+  right: -10px;
+  width: 28px;
+  height: 28px;
+  background: var(--primary);
+  color: white;
+  border: 2px solid white;
+  border-radius: 50%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: se-resize;
+  z-index: 60;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.5);
+  touch-action: none;
+}
+
+.canvas-item.selected .resize-handle {
+  display: flex;
+}
+
+/* CONTROLES DE TAMANHO DIRETO NO PASSO 3 */
+.resize-toolbar-box {
+  margin-top: 14px;
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.resize-controls-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.resize-item-control {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 4px 8px;
+}
+
+.resize-val-text {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--primary);
+}
+
 .alignment-toolbar {
-  margin-top: 16px;
+  margin-top: 12px;
   width: 100%;
   background: var(--surface2);
   border: 1px solid var(--border);
@@ -686,7 +747,7 @@ main {
 .align-btn:active { background: var(--primary); color: white; transform: scale(0.95); }
 
 .move-page-box {
-  margin-top: 14px;
+  margin-top: 12px;
   background: var(--surface2);
   border: 1px dashed var(--border-active);
   border-radius: var(--radius-md);
@@ -1028,12 +1089,12 @@ main {
   <div class="card" id="step3" style="display:none;">
     <div class="card-header">
       <div class="card-title">Posicionar Fotos na Folha</div>
-      <div class="card-subtitle">Navegue pelas folhas A4, crie novas ou exclua. Arraste as fotos livremente.</div>
+      <div class="card-subtitle">Todas as suas fotos iniciam na Folha 1. Arraste com o dedo, redimensione ou mova de folha se desejar.</div>
     </div>
 
     <div class="helper-tip">
       <span style="font-size: 1.3rem;">💡</span>
-      <span><strong>Mover foto de folha:</strong> Toque na foto e escolha para qual folha deseja enviá-la abaixo.</span>
+      <span><strong>Redimensionar na Folha:</strong> Arraste a bolinha roxa ↘ no canto da foto ou use os botões - + de tamanho abaixo.</span>
     </div>
 
     <div class="canvas-wrapper">
@@ -1051,6 +1112,26 @@ main {
       </div>
 
       <div class="canvas-container" id="canvas"></div>
+    </div>
+
+    <!-- CONTROLES DE REDIMENSIONAMENTO DIRETO DA FOTO SELECIONADA -->
+    <div class="resize-toolbar-box">
+      <div class="section-label" style="margin-bottom: 4px;">Alterar Tamanho da Foto Selecionada:</div>
+      <div class="resize-controls-grid">
+        <div class="resize-item-control">
+          <span style="font-size: 0.75rem; font-weight:700; color:var(--text-muted)">Largura:</span>
+          <button class="stepper-btn" style="width:30px; height:30px; border-radius:6px;" onclick="stepSelectedImageDimension('width', -0.5)">-</button>
+          <span id="selectedWVal" class="resize-val-text">10.0 cm</span>
+          <button class="stepper-btn" style="width:30px; height:30px; border-radius:6px;" onclick="stepSelectedImageDimension('width', 0.5)">+</button>
+        </div>
+
+        <div class="resize-item-control">
+          <span style="font-size: 0.75rem; font-weight:700; color:var(--text-muted)">Altura:</span>
+          <button class="stepper-btn" style="width:30px; height:30px; border-radius:6px;" onclick="stepSelectedImageDimension('height', -0.5)">-</button>
+          <span id="selectedHVal" class="resize-val-text">15.0 cm</span>
+          <button class="stepper-btn" style="width:30px; height:30px; border-radius:6px;" onclick="stepSelectedImageDimension('height', 0.5)">+</button>
+        </div>
+      </div>
     </div>
 
     <!-- SELETOR DE DESTINO DA FOTO SELECIONADA -->
@@ -1181,7 +1262,7 @@ function goToStep(step) {
     backBtn.style.display = 'inline-flex';
     nextBtn.className = 'btn btn-success';
     nextBtn.innerHTML = '📥 Baixar PDF';
-    autoOrganizePages();
+    putAllImagesOnFirstPage(); // Junta todas as fotos na Folha 1 inicialmente conforme solicitado pelo usuário!
     currentPage = 0;
     if (imagesList.length > 0 && !selectedImageId) {
       selectedImageId = imagesList[0].id;
@@ -1224,8 +1305,8 @@ function handleFileSelect(e) {
         id: id,
         name: file.name || `Foto ${imagesList.length + 1}`,
         src: ev.target.result,
-        widthCm: 21,
-        heightCm: 29.7,
+        widthCm: 10,
+        heightCm: 15,
         rotation: 0,
         x: 0,
         y: 0,
@@ -1359,50 +1440,17 @@ function updateItemDimension(index, prop, val) {
   }
 }
 
-/* ══ AUTO-ORGANIZAÇÃO DE PÁGINAS A4 ══ */
-function autoOrganizePages() {
-  let curPage = 0;
-  let curX = 1.0;
-  let curY = 1.0;
-  let rowMaxH = 0;
+/* ══ JUNTA TODAS AS FOTOS NA FOLHA 1 (ATENDE O PEDIDO DO USUÁRIO) ══ */
+function putAllImagesOnFirstPage() {
+  let curX = 0.5;
+  let curY = 0.5;
 
-  imagesList.forEach((img) => {
-    const isRotated90 = (img.rotation === 90 || img.rotation === 270);
-    const w = isRotated90 ? img.heightCm : img.widthCm;
-    const h = isRotated90 ? img.widthCm : img.heightCm;
-
-    if (w >= 21 || h >= 29.7) {
-      if (curX > 1.0 || curY > 1.0) curPage++;
-      img.pageIndex = curPage;
-      img.x = 0;
-      img.y = 0;
-      curPage++;
-      curX = 1.0; curY = 1.0; rowMaxH = 0;
-      return;
-    }
-
-    if (curX + w > 20.0) {
-      curX = 1.0;
-      curY += rowMaxH + 0.8;
-      rowMaxH = 0;
-    }
-
-    if (curY + h > 28.5) {
-      curPage++;
-      curX = 1.0;
-      curY = 1.0;
-      rowMaxH = 0;
-    }
-
-    img.pageIndex = curPage;
-    img.x = curX;
-    img.y = curY;
-
-    curX += w + 0.8;
-    if (h > rowMaxH) rowMaxH = h;
+  imagesList.forEach((img, idx) => {
+    img.pageIndex = 0; // Coloca tudo na Folha 1 inicialmente!
+    img.x = Math.min(10.0, (idx % 3) * 3);
+    img.y = Math.min(20.0, Math.floor(idx / 3) * 3);
   });
-
-  totalPages = Math.max(1, curPage + (curX > 1.0 || curY > 1.0 ? 1 : 0));
+  totalPages = 1;
 }
 
 /* ══ GERENCIAMENTO E NAVEGAÇÃO DE FOLHAS A4 ══ */
@@ -1501,7 +1549,43 @@ function moveSelectedImageToNewPage() {
   moveSelectedImageToPage(newPage);
 }
 
-/* ══ CANVAS TOUCH RESPONSIVO (CORRIGIDO: SUPORTE PERFEITO A IMAGENS GIRADAS) ══ */
+/* REDIMENSIONAMENTO DIRETO DA FOTO SELECIONADA NO PASSO 3 */
+function stepSelectedImageDimension(prop, delta) {
+  if (!selectedImageId) {
+    showToast('Selecione uma foto primeiro!', 'error');
+    return;
+  }
+  const img = imagesList.find(i => i.id === selectedImageId);
+  if (!img) return;
+
+  if (prop === 'width') {
+    let newW = Math.max(1, Math.min(21, img.widthCm + delta));
+    img.widthCm = Math.round(newW * 10) / 10;
+  } else {
+    let newH = Math.max(1, Math.min(29.7, img.heightCm + delta));
+    img.heightCm = Math.round(newH * 10) / 10;
+  }
+  renderCanvasPage();
+}
+
+function updateSelectedSizeDisplay() {
+  const wEl = document.getElementById('selectedWVal');
+  const hEl = document.getElementById('selectedHVal');
+  if (!wEl || !hEl) return;
+
+  if (selectedImageId) {
+    const img = imagesList.find(i => i.id === selectedImageId);
+    if (img) {
+      wEl.textContent = `${img.widthCm.toFixed(1)} cm`;
+      hEl.textContent = `${img.heightCm.toFixed(1)} cm`;
+      return;
+    }
+  }
+  wEl.textContent = '-- cm';
+  hEl.textContent = '-- cm';
+}
+
+/* ══ CANVAS TOUCH RESPONSIVO COM REDIMENSIONAMENTO POR ALÇA DE CANTO ══ */
 function renderCanvasPage() {
   const container = document.getElementById('canvas');
   container.innerHTML = '';
@@ -1524,10 +1608,10 @@ function renderCanvasPage() {
 
   pageImages.forEach((imgData) => {
     const item = document.createElement('div');
-    item.className = `canvas-item ${selectedImageId === imgData.id ? 'selected' : ''}`;
+    const isSelected = (selectedImageId === imgData.id);
+    item.className = `canvas-item ${isSelected ? 'selected' : ''}`;
     item.dataset.id = imgData.id;
 
-    // Checa se a imagem está girada 90 ou 270 graus para inverter a largura e altura do container
     const isRotated90 = (imgData.rotation === 90 || imgData.rotation === 270);
     const displayWCm = isRotated90 ? imgData.heightCm : imgData.widthCm;
     const displayHCm = isRotated90 ? imgData.widthCm : imgData.heightCm;
@@ -1557,11 +1641,20 @@ function renderCanvasPage() {
 
     item.appendChild(imgEl);
 
+    // Alça de Redimensionamento Touch no Canto da Imagem Selecionada
+    const handle = document.createElement('div');
+    handle.className = 'resize-handle';
+    handle.innerHTML = '↘';
+    handle.title = 'Arraste para redimensionar';
+    setupTouchResize(handle, imgData, item, container);
+    item.appendChild(handle);
+
     setupTouchDrag(item, imgData, container);
     container.appendChild(item);
   });
 
   renderPageSelectorChips();
+  updateSelectedSizeDisplay();
 }
 
 function selectCanvasItem(id) {
@@ -1577,6 +1670,7 @@ function selectCanvasItem(id) {
   });
 
   renderPageSelectorChips();
+  updateSelectedSizeDisplay();
 }
 
 function setupTouchDrag(el, imgData, container) {
@@ -1585,6 +1679,7 @@ function setupTouchDrag(el, imgData, container) {
   let initialLeft = 0, initialTop = 0;
 
   const onPointerDown = (e) => {
+    if (e.target.closest('.resize-handle')) return;
     e.preventDefault();
     isDragging = true;
     selectCanvasItem(imgData.id);
@@ -1613,7 +1708,6 @@ function setupTouchDrag(el, imgData, container) {
     let newLeft = initialLeft + dx;
     let newTop = initialTop + dy;
 
-    // Calcula os limites corretos considerando a rotação da imagem
     const maxLeft = container.offsetWidth - el.offsetWidth;
     const maxTop = container.offsetHeight - el.offsetHeight;
 
@@ -1640,6 +1734,67 @@ function setupTouchDrag(el, imgData, container) {
   el.addEventListener('pointermove', onPointerMove);
   el.addEventListener('pointerup', onPointerUp);
   el.addEventListener('pointercancel', onPointerUp);
+}
+
+/* ARRASTE DA ALÇA DE REDIMENSIONAMENTO TOUCH NO CANTO DA IMAGEM */
+function setupTouchResize(handle, imgData, itemEl, container) {
+  let isResizing = false;
+  let startX = 0, startY = 0;
+  let initialWCm = 0, initialHCm = 0;
+
+  const onPointerDown = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    isResizing = true;
+    selectCanvasItem(imgData.id);
+
+    startX = e.clientX || 0;
+    startY = e.clientY || 0;
+
+    initialWCm = imgData.widthCm;
+    initialHCm = imgData.heightCm;
+
+    try {
+      handle.setPointerCapture(e.pointerId);
+    } catch(err) {}
+  };
+
+  const onPointerMove = (e) => {
+    if (!isResizing) return;
+    e.preventDefault();
+
+    const currentX = e.clientX || 0;
+    const currentY = e.clientY || 0;
+
+    const dxPx = currentX - startX;
+    const dyPx = currentY - startY;
+
+    const dxCm = (dxPx / canvasScale) / 10;
+    const dyCm = (dyPx / canvasScale) / 10;
+
+    let newWCm = Math.max(1, Math.min(21, initialWCm + dxCm));
+    let newHCm = Math.max(1, Math.min(29.7, initialHCm + dyCm));
+
+    imgData.widthCm = Math.round(newWCm * 10) / 10;
+    imgData.heightCm = Math.round(newHCm * 10) / 10;
+
+    // Atualiza container em tempo real
+    renderCanvasPage();
+  };
+
+  const onPointerUp = (e) => {
+    if (isResizing) {
+      isResizing = false;
+      try {
+        handle.releasePointerCapture(e.pointerId);
+      } catch(err) {}
+    }
+  };
+
+  handle.addEventListener('pointerdown', onPointerDown);
+  handle.addEventListener('pointermove', onPointerMove);
+  handle.addEventListener('pointerup', onPointerUp);
+  handle.addEventListener('pointercancel', onPointerUp);
 }
 
 function alignSelectedImage(type) {
@@ -1679,7 +1834,6 @@ function rotateSelectedImage(e, id) {
   if (img) {
     img.rotation = (img.rotation + 90) % 360;
 
-    // Checa limites de movimento para evitar travar na folha após girar
     const isRotated90 = (img.rotation === 90 || img.rotation === 270);
     const displayWCm = isRotated90 ? img.heightCm : img.widthCm;
     const displayHCm = isRotated90 ? img.widthCm : img.heightCm;
@@ -1924,7 +2078,7 @@ function applyCrop() {
   closeCropModal();
 }
 
-/* ══ GERAÇÃO DO PDF PROFISSIONAL (COM SUPORTE A ROTAÇÃO CORRETA) ══ */
+/* ══ GERAÇÃO DO PDF PROFISSIONAL ══ */
 async function generatePDF() {
   if (imagesList.length === 0) {
     showToast('Adicione pelo menos uma foto antes de baixar.', 'error');
