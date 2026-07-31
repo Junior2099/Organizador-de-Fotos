@@ -1,671 +1,2005 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="light">
+<html lang="pt-BR" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PDF Studio — Gerador Profissional</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>PDF Studio Mobile — Criador Fácil de PDF</title>
 <link rel="icon" type="image/png" sizes="32x32" href="https://img.icons8.com/?size=100&id=WKY3Y9MixZVS&format=png&color=000000">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 <style>
-/* ══ TOKENS: DARK ══ */
-:root{
-  --bg:#0d0f14;--surface:#161a23;--surface2:#1e2330;--surface3:#232840;
-  --border:#2a3040;--border2:#3a4260;
-  --accent:#5b7fff;--accent2:#a78bfa;--green:#34d399;--red:#f87171;
-  --text:#e8eaf0;--text-dim:#7a8499;--text-dimmer:#404860;
-  --shadow:0 8px 32px rgba(0,0,0,.5);--shadow-sm:0 2px 8px rgba(0,0,0,.3);
-  --radius:14px;--header-bg:rgba(22,26,35,.9);
-  --canvas-shadow:0 16px 56px rgba(0,0,0,.7);
-  --dz-bg:var(--surface2);--inp-bg:var(--bg);
-  --bg-g1:rgba(91,127,255,.12);--bg-g2:rgba(167,139,250,.06);
-}
-/* ══ TOKENS: LIGHT ══ */
-[data-theme="light"]{
-  --bg:#eef1f9;--surface:#fff;--surface2:#f3f5fb;--surface3:#e8ecf7;
-  --border:#d4d9ec;--border2:#bdc5e0;
-  --text:#141828;--text-dim:#5a6480;--text-dimmer:#b0b8cc;
-  --shadow:0 8px 32px rgba(60,80,160,.1);--shadow-sm:0 2px 8px rgba(60,80,160,.07);
-  --header-bg:rgba(255,255,255,.9);
-  --canvas-shadow:0 16px 56px rgba(60,80,160,.18);
-  --dz-bg:#f7f9fe;--inp-bg:#f0f2f9;
-  --bg-g1:rgba(91,127,255,.06);--bg-g2:rgba(167,139,250,.04);
-}
-
-*{box-sizing:border-box;margin:0;padding:0}
-body{
-  font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);
-  min-height:100vh;transition:background .3s,color .3s;
-  background-image:
-    radial-gradient(ellipse 80% 50% at 50% -20%,var(--bg-g1) 0%,transparent 70%),
-    radial-gradient(ellipse 40% 30% at 90% 80%, var(--bg-g2) 0%,transparent 60%);
+/* ══ ESTILOS GLOBAIS E VARIÁVEIS ══ */
+:root {
+  --bg: #090d16;
+  --surface: #131a29;
+  --surface2: #1c263b;
+  --surface3: #26334e;
+  --border: rgba(255, 255, 255, 0.12);
+  --border-active: #6366f1;
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+  --primary-light: rgba(99, 102, 241, 0.15);
+  --secondary: #8b5cf6;
+  --success: #10b981;
+  --success-hover: #059669;
+  --danger: #ef4444;
+  --danger-light: rgba(239, 68, 68, 0.15);
+  --text: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+  --radius-lg: 20px;
+  --radius-md: 14px;
+  --radius-sm: 10px;
+  --shadow-main: 0 20px 40px -15px rgba(0,0,0,0.5);
+  --header-h: 64px;
+  --bottom-bar-h: 70px;
 }
 
-/* ── HEADER ── */
-header{
-  display:flex;align-items:center;gap:13px;padding:17px 38px;
-  border-bottom:1px solid var(--border);background:var(--header-bg);
-  backdrop-filter:blur(14px);position:sticky;top:0;z-index:200;
-  transition:background .3s,border-color .3s;
-}
-.logo-link{display:flex;align-items:center;gap:13px;cursor:pointer;text-decoration:none;color:inherit;border-radius:8px;padding:3px 6px 3px 0;transition:opacity .2s;}
-.logo-link:hover{opacity:.75}
-.logo-icon{
-  width:34px;height:34px;background:linear-gradient(135deg,var(--accent),var(--accent2));
-  border-radius:9px;display:grid;place-items:center;font-size:17px;flex-shrink:0;
-}
-.logo-text{font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;letter-spacing:-.02em}
-.logo-text span{color:var(--accent)}
-.header-right{margin-left:auto;display:flex;align-items:center;gap:10px}
-.header-badge{
-  font-size:.7rem;font-weight:500;letter-spacing:.06em;text-transform:uppercase;
-  color:var(--text-dim);background:var(--surface2);border:1px solid var(--border);
-  border-radius:20px;padding:4px 12px;
-}
-.theme-btn{
-  width:36px;height:36px;border-radius:50%;border:1px solid var(--border);
-  background:var(--surface2);cursor:pointer;display:grid;place-items:center;
-  font-size:15px;transition:all .2s;color:var(--text);
-}
-.theme-btn:hover{border-color:var(--accent);transform:rotate(20deg)}
-
-/* ── STEPPER ── */
-.stepper{
-  display:flex;align-items:center;justify-content:center;
-  padding:26px 38px 14px;gap:0;
-}
-.step{display:flex;align-items:center;gap:9px;font-size:.78rem;font-weight:500;color:var(--text-dimmer);transition:color .3s}
-.step.active{color:var(--text)}
-.step.done{color:var(--green)}
-.step-num{
-  width:26px;height:26px;border-radius:50%;
-  background:var(--surface2);border:2px solid var(--border);
-  display:grid;place-items:center;font-size:.72rem;font-weight:700;
-  font-family:'Syne',sans-serif;transition:all .3s;flex-shrink:0;
-}
-.step.active .step-num{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 0 14px rgba(91,127,255,.45)}
-.step.done .step-num{background:var(--green);border-color:var(--green);color:#0d0f14}
-.step-line{width:52px;height:2px;background:var(--border);margin:0 4px;flex-shrink:0;transition:background .3s}
-.step-line.done{background:var(--green)}
-
-/* ── LAYOUT ── */
-.container{max-width:980px;margin:0 auto;padding:0 32px 64px}
-.card{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:var(--radius);padding:34px;box-shadow:var(--shadow);
-  animation:fadeUp .38s ease both;transition:background .3s,border-color .3s;
-}
-@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
-.hidden{display:none!important}
-.card-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1.32rem;letter-spacing:-.02em;margin-bottom:5px}
-.card-sub{color:var(--text-dim);font-size:.85rem;margin-bottom:24px;line-height:1.55}
-
-/* ── DROP ZONE ── */
-.dropzone{
-  border:2px dashed var(--border);border-radius:12px;padding:52px 32px;
-  text-align:center;cursor:pointer;background:var(--dz-bg);
-  position:relative;overflow:hidden;transition:all .25s;
-}
-.dropzone::before{
-  content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse at center,rgba(91,127,255,.07) 0%,transparent 70%);
-  opacity:0;transition:opacity .3s;pointer-events:none;
-}
-.dropzone:hover{border-color:var(--accent);background:rgba(91,127,255,.04)}
-.dropzone:hover::before{opacity:1}
-.dropzone.drag-over{border-color:var(--accent);background:rgba(91,127,255,.08);transform:scale(1.01)}
-.dz-icon{font-size:2.6rem;margin-bottom:10px;display:block}
-.dz-title{font-family:'Syne',sans-serif;font-weight:600;font-size:.97rem;margin-bottom:5px}
-.dz-sub{color:var(--text-dim);font-size:.8rem}
-
-.preview-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:8px;margin-top:18px}
-.preview-chip{position:relative;border-radius:8px;overflow:hidden;aspect-ratio:1;background:var(--surface2);border:1px solid var(--border)}
-.preview-chip img{width:100%;height:100%;object-fit:cover;display:block}
-.preview-chip span{
-  position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.6);
-  text-align:center;font-size:.6rem;padding:3px;color:#ddd;
-  backdrop-filter:blur(4px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-.preview-count{color:var(--text-dim);font-size:.8rem;margin-top:9px}
-
-/* ── BUTTONS ── */
-.btn{
-  display:inline-flex;align-items:center;gap:7px;
-  padding:11px 24px;border:none;border-radius:10px;
-  font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;
-  cursor:pointer;transition:all .2s;letter-spacing:.01em;
-}
-.btn-primary{background:var(--accent);color:#fff}
-.btn-primary:hover{filter:brightness(1.12);box-shadow:0 4px 18px rgba(91,127,255,.4);transform:translateY(-1px)}
-.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
-.btn-secondary:hover{border-color:var(--accent);color:var(--accent)}
-.btn-green{background:var(--green);color:#0d0f14;font-weight:600}
-.btn-green:hover{filter:brightness(1.08);box-shadow:0 4px 18px rgba(52,211,153,.35);transform:translateY(-1px)}
-.btn-green:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:none;filter:none}
-.btn-danger{
-  background:transparent;color:var(--red);border:1px solid rgba(248,113,113,.25);
-  padding:7px 12px;font-size:.78rem;border-radius:8px;
-}
-.btn-danger:hover{background:rgba(248,113,113,.08);border-color:var(--red)}
-.btn-row{display:flex;gap:10px;align-items:center;margin-top:24px;flex-wrap:wrap}
-
-/* ── INFO BOX ── */
-.info-box{
-  background:rgba(91,127,255,.07);border:1px solid rgba(91,127,255,.2);
-  border-radius:10px;padding:13px 16px;
-  font-size:.8rem;color:var(--text-dim);line-height:1.6;
-  display:flex;gap:10px;align-items:flex-start;margin-bottom:18px;
-}
-.info-box-icon{font-size:.94rem;flex-shrink:0;margin-top:2px}
-
-/* ── SIZES (step 2) ── */
-.sizes-grid{display:flex;flex-direction:column;gap:11px}
-.size-row{
-  display:grid;grid-template-columns:52px 1fr 130px 130px auto;
-  gap:13px;align-items:center;
-  background:var(--surface2);border:1px solid var(--border);
-  border-radius:10px;padding:12px 15px;transition:border-color .2s;
-}
-.size-row:hover{border-color:var(--border2)}
-.size-row .thumb{width:46px;height:46px;object-fit:cover;border-radius:7px;border:1px solid var(--border)}
-.size-label{font-size:.71rem;color:var(--text-dim);margin-bottom:2px;font-weight:500}
-.size-filename{font-size:.77rem;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.inp-wrap{display:flex;flex-direction:column;gap:4px}
-.inp-wrap label{font-size:.68rem;color:var(--text-dim);letter-spacing:.04em;text-transform:uppercase;font-weight:500}
-input[type=number]{
-  background:var(--inp-bg);border:1px solid var(--border);border-radius:8px;
-  color:var(--text);font-family:'DM Sans',sans-serif;font-size:.85rem;
-  padding:8px 11px;width:100%;outline:none;-moz-appearance:textfield;
-  transition:border-color .2s,box-shadow .2s;
-}
-input[type=number]::-webkit-outer-spin-button,
-input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
-input[type=number]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(91,127,255,.14)}
-input[type=number]::placeholder{color:var(--text-dimmer)}
-
-.add-more-row{
-  display:flex;align-items:center;justify-content:center;
-  border:2px dashed var(--border);border-radius:10px;padding:14px;
-  cursor:pointer;color:var(--text-dim);font-size:.83rem;gap:7px;
-  transition:all .2s;margin-top:4px;
-}
-.add-more-row:hover{border-color:var(--accent);color:var(--accent);background:rgba(91,127,255,.04)}
-
-/* ── CANVAS (step 3) ── */
-.orientation-tag{
-  display:inline-flex;align-items:center;gap:5px;
-  font-size:.7rem;font-weight:500;letter-spacing:.04em;text-transform:uppercase;
-  border-radius:20px;padding:3px 11px;
-}
-.orient-portrait{background:rgba(91,127,255,.13);color:var(--accent);border:1px solid rgba(91,127,255,.3)}
-.orient-landscape{background:rgba(167,139,250,.13);color:var(--accent2);border:1px solid rgba(167,139,250,.3)}
-
-.canvas-wrap{
-  background:var(--surface2);border:1px solid var(--border);
-  border-radius:12px;padding:20px;
-  display:flex;flex-direction:column;align-items:center;gap:14px;
-}
-.canvas-toolbar{
-  display:flex;align-items:center;gap:10px;align-self:stretch;
-  padding-bottom:14px;border-bottom:1px solid var(--border);flex-wrap:wrap;
-}
-.toolbar-title{font-family:'Syne',sans-serif;font-weight:600;font-size:.87rem}
-.canvas-hint{margin-left:auto;font-size:.72rem;color:var(--text-dim);display:flex;align-items:center;gap:5px}
-
-#canvasScroll{width:100%;display:flex;justify-content:center;overflow:hidden}
-#canvas{
-  position:relative;background:#fff;flex-shrink:0;
-  border:2px solid var(--border2);border-radius:3px;
-  box-shadow:var(--canvas-shadow);overflow:hidden;
+[data-theme="light"] {
+  --bg: #f1f5f9;
+  --surface: #ffffff;
+  --surface2: #f8fafc;
+  --surface3: #e2e8f0;
+  --border: #cbd5e1;
+  --border-active: #6366f1;
+  --text: #0f172a;
+  --text-muted: #475569;
+  --text-dim: #94a3b8;
+  --shadow-main: 0 10px 30px -10px rgba(0,0,0,0.08);
 }
 
-/* image items */
-.img-item{position:absolute;cursor:move;touch-action:none;overflow:hidden}
-.img-item img{position:absolute;object-fit:fill;pointer-events:none;transform-origin:center center}
-.img-item::after{
-  content:'';position:absolute;inset:0;
-  border:2px solid transparent;border-radius:2px;
-  pointer-events:none;transition:border-color .15s;z-index:4;
+* { box-sizing: border-box; margin: 0; padding: 0; touch-action: manipulation; }
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.3s, color 0.3s;
 }
-.img-item:hover::after{border-color:rgba(91,127,255,.7)}
-.img-overlay{
-  position:absolute;inset:0;opacity:0;transition:opacity .18s;
-  display:flex;align-items:flex-start;justify-content:flex-end;
-  pointer-events:none;z-index:5;
-}
-.img-item:hover .img-overlay{opacity:1}
-.img-overlay-bar{margin:5px;display:flex;gap:4px;pointer-events:all}
-.img-btn{
-  width:30px;height:30px;border-radius:7px;border:none;
-  background:rgba(10,12,22,.8);backdrop-filter:blur(6px);
-  color:#fff;cursor:pointer;font-size:14px;
-  display:grid;place-items:center;transition:background .15s;
-  box-shadow:0 2px 8px rgba(0,0,0,.5);
-}
-.img-btn:hover{background:var(--accent)}
 
-.page-label{font-size:.66rem;color:var(--text-dimmer);letter-spacing:.05em;text-transform:uppercase}
-
-/* ── SCROLL TO TOP ── */
-.scroll-top{
-  position:fixed;bottom:28px;right:28px;z-index:300;
-  width:42px;height:42px;border-radius:50%;border:1px solid var(--border);
-  background:var(--surface);box-shadow:var(--shadow);
-  cursor:pointer;display:grid;place-items:center;
-  opacity:0;pointer-events:none;
-  transform:translateY(12px);
-  transition:opacity .3s,transform .3s,border-color .2s,background .2s;
-  color:var(--text-dim);
+/* ══ CABEÇALHO RESPONSIVO ══ */
+header {
+  height: var(--header-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(12px);
 }
-.scroll-top.visible{opacity:1;pointer-events:all;transform:translateY(0)}
-.scroll-top:hover{border-color:var(--accent);color:var(--accent);background:var(--surface2)}
 
-/* ── TOAST ── */
-.toast{
-  position:fixed;bottom:24px;left:50%;
-  transform:translateX(-50%) translateY(16px);
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:10px;padding:11px 22px;
-  font-size:.82rem;color:var(--text);box-shadow:var(--shadow);
-  z-index:999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--text);
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.25rem;
 }
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.toast.error{border-color:var(--red);color:var(--red)}
-.toast.success{border-color:var(--green);color:var(--green)}
+
+.logo-badge {
+  width: 38px;
+  height: 38px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.2rem;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.logo span { color: var(--primary); }
+
+.header-actions { display: flex; align-items: center; gap: 8px; }
+
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: all 0.2s;
+}
+.icon-btn:active { transform: scale(0.92); }
+
+/* ══ INDICADOR DE PASSO A PASSO (STEPPER) ══ */
+.stepper-container {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 16px;
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 600px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  position: relative;
+  z-index: 2;
+  cursor: pointer;
+}
+
+.step-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--surface2);
+  border: 2px solid var(--border);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  transition: all 0.3s;
+}
+
+.step-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  transition: color 0.3s;
+  text-align: center;
+}
+
+.step-item.active .step-circle {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+  box-shadow: 0 0 16px rgba(99, 102, 241, 0.5);
+}
+.step-item.active .step-title { color: var(--text); }
+
+.step-item.completed .step-circle {
+  background: var(--success);
+  border-color: var(--success);
+  color: white;
+}
+
+.stepper-line {
+  position: absolute;
+  top: 16px;
+  left: 15%;
+  right: 15%;
+  height: 2px;
+  background: var(--border);
+  z-index: 1;
+}
+
+.stepper-line-progress {
+  height: 100%;
+  background: var(--success);
+  width: 0%;
+  transition: width 0.3s;
+}
+
+/* ══ CONTEÚDO PRINCIPAL E CARDS ══ */
+main {
+  flex: 1;
+  padding: 16px;
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+  padding-bottom: calc(var(--bottom-bar-h) + 24px);
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 16px;
+  box-shadow: var(--shadow-main);
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.card-header { margin-bottom: 20px; }
+.card-title { font-family: 'Syne', sans-serif; font-size: 1.35rem; font-weight: 800; }
+.card-subtitle { font-size: 0.88rem; color: var(--text-muted); margin-top: 4px; line-height: 1.4; }
+
+/* ══ PASSO 1: UPLOAD SIMPLIFICADO ══ */
+.upload-area {
+  border: 2.5px dashed var(--border-active);
+  background: var(--primary-light);
+  border-radius: var(--radius-md);
+  padding: 32px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.upload-area:active { transform: scale(0.98); background: rgba(99, 102, 241, 0.25); }
+
+.upload-icon {
+  width: 60px;
+  height: 60px;
+  background: var(--primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  color: white;
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+}
+
+.upload-title { font-weight: 700; font-size: 1.1rem; }
+.upload-desc { font-size: 0.82rem; color: var(--text-muted); }
+
+.file-input { display: none; }
+
+.images-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.image-card {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 2px solid var(--border);
+  background: var(--surface2);
+}
+
+.image-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-card-actions {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: flex;
+  gap: 4px;
+}
+
+.image-card-btn {
+  width: 26px;
+  height: 26px;
+  background: rgba(15, 23, 42, 0.85);
+  color: white;
+  border-radius: 50%;
+  border: none;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  backdrop-filter: blur(4px);
+}
+.image-card-btn.remove { background: rgba(239, 68, 68, 0.9); }
+
+.image-card-num {
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  background: rgba(0,0,0,0.75);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 10px;
+  backdrop-filter: blur(4px);
+}
+
+/* ══ PASSO 2: PRESETS VISUAIS E CONFIGURAÇÃO FLUIDA DE TAMANHO ══ */
+.preset-section { margin-bottom: 24px; }
+.section-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.presets-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+@media (min-width: 540px) {
+  .presets-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.preset-card {
+  background: var(--surface2);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.preset-card:active { transform: scale(0.96); }
+
+.preset-card.selected {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  box-shadow: 0 0 16px rgba(99, 102, 241, 0.25);
+}
+
+.preset-icon { font-size: 1.6rem; }
+.preset-title { font-weight: 700; font-size: 0.9rem; }
+.preset-subtitle { font-size: 0.75rem; color: var(--text-muted); }
+
+.individual-sizes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.size-item-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@media (min-width: 540px) {
+  .size-item-card {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.size-item-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.size-item-thumb {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.size-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.size-item-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.size-item-tags {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.tag-btn {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 12px;
+  background: var(--surface3);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.tag-btn:active { background: var(--primary); color: white; }
+
+.size-item-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+}
+
+@media (min-width: 540px) {
+  .size-item-inputs {
+    width: 280px;
+  }
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.input-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.stepper-input {
+  display: flex;
+  align-items: center;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  height: 42px;
+}
+
+.stepper-btn {
+  width: 36px;
+  height: 100%;
+  background: var(--surface3);
+  border: none;
+  color: var(--text);
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.stepper-btn:active { background: var(--primary); color: white; }
+
+.stepper-field {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  text-align: center;
+  color: var(--text);
+  font-size: 16px !important;
+  font-weight: 700;
+  outline: none;
+  padding: 0 2px;
+}
+
+/* ══ PASSO 3: GERENCIADOR DE FOLHAS E CANVAS TOUCH ══ */
+.canvas-wrapper {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.page-nav-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  padding-bottom: 14px;
+}
+
+@media (min-width: 480px) {
+  .page-nav-bar {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.page-nav-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.page-nav-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface3);
+  color: var(--text);
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.page-nav-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.page-nav-btn:not(:disabled):active {
+  background: var(--primary);
+  color: white;
+  transform: scale(0.92);
+}
+
+.page-counter-badge {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 6px 14px;
+  border-radius: 20px;
+}
+
+.page-actions-btns {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-sm {
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s;
+}
+
+.btn-add-page {
+  background: var(--primary-light);
+  border-color: rgba(99, 102, 241, 0.4);
+  color: var(--primary);
+}
+.btn-add-page:active { background: var(--primary); color: white; }
+
+.btn-delete-page {
+  background: var(--danger-light);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: var(--danger);
+}
+.btn-delete-page:active { background: var(--danger); color: white; }
+
+.canvas-container {
+  position: relative;
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  overflow: hidden;
+  touch-action: none;
+}
+
+.canvas-item {
+  position: absolute;
+  cursor: move;
+  user-select: none;
+  touch-action: none;
+  transition: box-shadow 0.2s;
+  overflow: hidden;
+}
+
+.canvas-item img {
+  pointer-events: none;
+  display: block;
+}
+
+.canvas-item.selected {
+  outline: 3px solid var(--primary);
+  outline-offset: 1px;
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+  z-index: 40;
+}
+
+.alignment-toolbar {
+  margin-top: 16px;
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.align-btns-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+@media (min-width: 480px) {
+  .align-btns-grid { grid-template-columns: repeat(6, 1fr); }
+}
+
+.align-btn {
+  padding: 8px 6px;
+  background: var(--surface3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s;
+}
+.align-btn:active { background: var(--primary); color: white; transform: scale(0.95); }
+
+.move-page-box {
+  margin-top: 14px;
+  background: var(--surface2);
+  border: 1px dashed var(--border-active);
+  border-radius: var(--radius-md);
+  padding: 12px;
+}
+
+.page-selector-chips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-top: 6px;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.page-chip {
+  padding: 8px 14px;
+  background: var(--surface3);
+  border: 1.5px solid var(--border);
+  border-radius: 20px;
+  color: var(--text);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.page-chip:active { transform: scale(0.95); }
+
+.page-chip.active {
+  background: var(--primary-light);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.page-chip.create-new {
+  background: var(--success);
+  border-color: var(--success);
+  color: white;
+}
+
+/* ══ MODAL DE RECORTE INTERATIVO DE IMAGEM ══ */
+.crop-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(9, 13, 22, 0.88);
+  backdrop-filter: blur(12px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.crop-container {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);
+}
+
+.crop-header {
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.crop-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+
+.crop-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  overflow-y: auto;
+}
+
+.crop-canvas-wrapper {
+  position: relative;
+  max-width: 100%;
+  max-height: 50vh;
+  display: flex;
+  justify-content: center;
+  background: #000;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  touch-action: none;
+}
+
+#cropCanvas {
+  max-width: 100%;
+  max-height: 50vh;
+  display: block;
+}
+
+.crop-ratios {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  width: 100%;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ratio-chip {
+  padding: 6px 12px;
+  background: var(--surface3);
+  border: 1.5px solid var(--border);
+  border-radius: 20px;
+  color: var(--text);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.ratio-chip.selected {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+.crop-footer {
+  padding: 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 10px;
+}
+
+/* ══ BARRA INFERIOR FIXA MÓVEL ══ */
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--bottom-bar-h);
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  z-index: 90;
+  backdrop-filter: blur(16px);
+}
+
+.btn {
+  height: 48px;
+  padding: 0 20px;
+  border-radius: var(--radius-md);
+  border: none;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.btn-secondary {
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-secondary:active { background: var(--surface3); }
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 6px 18px rgba(99, 102, 241, 0.35);
+  flex: 1;
+}
+.btn-primary:active { transform: scale(0.97); }
+
+.btn-success {
+  background: var(--success);
+  color: white;
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.35);
+  flex: 1;
+}
+.btn-success:active { transform: scale(0.97); }
+
+.helper-tip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--primary-light);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  font-size: 0.82rem;
+  color: var(--text);
+  margin-bottom: 16px;
+  line-height: 1.4;
+}
+
+.toast {
+  position: fixed;
+  top: 75px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 12px 20px;
+  border-radius: 30px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 1000;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.success { border-color: var(--success); color: var(--success); }
+.toast.error { border-color: var(--danger); color: var(--danger); }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo-link" onclick="irParaTela1()" title="Voltar ao início">
-    <div class="logo-icon">🖼</div>
-    <div class="logo-text">PDF<span>Studio</span></div>
-  </div>
-  <div class="header-right">
-    <div class="header-badge">Gerador A4</div>
-    <button class="theme-btn" id="themeBtn" title="Alternar tema" onclick="toggleTheme()">🌙</button>
+  <a href="#" class="logo" onclick="goToStep(1); return false;">
+    <div class="logo-badge">📄</div>
+    <div>PDF<span>Studio</span></div>
+  </a>
+  <div class="header-actions">
+    <button class="icon-btn" id="themeToggleBtn" title="Alternar tema" onclick="toggleTheme()">🌙</button>
   </div>
 </header>
 
-<!-- Scroll to top -->
-<button class="scroll-top" id="scrollTopBtn" title="Voltar ao topo" onclick="window.scrollTo({top:0,behavior:'smooth'})">
-  <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M18 15l-6-6-6 6"/></svg>
-</button>
-
-<div class="stepper">
-  <div class="step active" id="st1"><div class="step-num">1</div><span>Imagens</span></div>
-  <div class="step-line" id="sl1"></div>
-  <div class="step" id="st2"><div class="step-num">2</div><span>Tamanhos</span></div>
-  <div class="step-line" id="sl2"></div>
-  <div class="step" id="st3"><div class="step-num">3</div><span>Organizar</span></div>
+<div class="stepper-container">
+  <div class="stepper">
+    <div class="stepper-line"><div class="stepper-line-progress" id="stepperLine"></div></div>
+    
+    <div class="step-item active" id="stepIndicator1" onclick="goToStep(1)">
+      <div class="step-circle">1</div>
+      <div class="step-title">Fotos</div>
+    </div>
+    
+    <div class="step-item" id="stepIndicator2" onclick="goToStep(2)">
+      <div class="step-circle">2</div>
+      <div class="step-title">Tamanho</div>
+    </div>
+    
+    <div class="step-item" id="stepIndicator3" onclick="goToStep(3)">
+      <div class="step-circle">3</div>
+      <div class="step-title">Baixar PDF</div>
+    </div>
+  </div>
 </div>
 
-<div class="container">
+<main>
+  <!-- PASSO 1: UPLOAD DE IMAGENS -->
+  <div class="card" id="step1">
+    <div class="card-header">
+      <div class="card-title">Escolha suas Fotos</div>
+      <div class="card-subtitle">Selecione fotos da galeria do seu celular ou tire novas imagens para transformar em PDF.</div>
+    </div>
 
-  <!-- TELA 1 -->
-  <div id="tela1" class="card">
-    <div class="card-title">Enviar Imagens</div>
-    <div class="card-sub">Arraste arquivos para a área abaixo ou clique para selecionar. JPG, PNG, WEBP e outros formatos são suportados.</div>
-    <div class="dropzone" id="dropzone">
-      <span class="dz-icon">📂</span>
-      <div class="dz-title">Solte suas imagens aqui</div>
-      <div class="dz-sub">ou clique para abrir o explorador de arquivos</div>
+    <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+      <div class="upload-icon">📷</div>
+      <div class="upload-title">Toque aqui para escolher fotos</div>
+      <div class="upload-desc">Suporta JPG, PNG e WEBP (Várias de uma vez)</div>
     </div>
-    <input type="file" id="fileInput" multiple accept="image/*" style="display:none">
-    <div id="previewList" class="preview-list hidden"></div>
-    <div id="previewCount" class="preview-count hidden"></div>
-    <div class="btn-row">
-      <button class="btn btn-primary" onclick="irParaTamanhos()">Próximo →</button>
-    </div>
+    <input type="file" id="fileInput" class="file-input" multiple accept="image/*" onchange="handleFileSelect(event)">
+
+    <div class="images-grid" id="imagesGrid"></div>
   </div>
 
-  <!-- TELA 2 -->
-  <div id="tela2" class="card hidden">
-    <div class="card-title">Configurar Tamanhos</div>
-    <div class="card-sub">Defina a largura e altura de cada imagem em centímetros. Você pode adicionar ou remover imagens aqui.</div>
-    <div class="info-box">
-      <span class="info-box-icon">💡</span>
-      <span>
-        <strong>Orientação automática:</strong> Largura &gt; 20 cm → página <strong>paisagem horizontal</strong> (máx. 30 × 20 cm).
-        No modo retrato o máximo é 21 × 29,7 cm.
-      </span>
+  <!-- PASSO 2: ESCOLHER TAMANHO -->
+  <div class="card" id="step2" style="display:none;">
+    <div class="card-header">
+      <div class="card-title">Configurar Tamanhos</div>
+      <div class="card-subtitle">Escolha um tamanho rápido para todas ou ajuste a largura e altura de cada foto individualmente.</div>
     </div>
-    <div class="sizes-grid" id="sizes"></div>
-    <div class="add-more-row" onclick="document.getElementById('fileInputAdd').click()">
-      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
-      Adicionar mais imagens
-    </div>
-    <input type="file" id="fileInputAdd" multiple accept="image/*" style="display:none">
-    <div class="btn-row">
-      <button class="btn btn-secondary" onclick="voltarTela(1)">← Voltar</button>
-      <button class="btn btn-primary" onclick="validarTamanhos()">Próximo →</button>
-    </div>
-  </div>
 
-  <!-- TELA 3 -->
-  <div id="tela3" class="card hidden">
-    <div class="card-title">Organizar na Página</div>
-    <div class="card-sub">Arraste as imagens para posicioná-las. Clique em ↻ para girar 90°. O PDF será gerado exatamente como mostrado.</div>
-    <div class="canvas-wrap">
-      <div class="canvas-toolbar">
-        <span class="toolbar-title">Pré-visualização</span>
-        <span id="orientTag"></span>
-        <span class="canvas-hint">
-          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
-          Arraste · ↻ girar
-        </span>
+    <div class="preset-section">
+      <div class="section-label">Tamanhos Prontos (Aplica a todas)</div>
+      <div class="presets-grid">
+        <div class="preset-card selected" onclick="selectGlobalPreset('full', this)">
+          <div class="preset-icon">🖼️</div>
+          <div class="preset-title">Preencher A4</div>
+          <div class="preset-subtitle">1 foto por folha inteira</div>
+        </div>
+
+        <div class="preset-card" onclick="selectGlobalPreset('10x15', this)">
+          <div class="preset-icon">📸</div>
+          <div class="preset-title">Foto 10 x 15 cm</div>
+          <div class="preset-subtitle">Tamanho padrão de foto</div>
+        </div>
+
+        <div class="preset-card" onclick="selectGlobalPreset('13x18', this)">
+          <div class="preset-icon">🖼️</div>
+          <div class="preset-title">Foto 13 x 18 cm</div>
+          <div class="preset-subtitle">Porta-retrato médio</div>
+        </div>
+
+        <div class="preset-card" onclick="selectGlobalPreset('3x4', this)">
+          <div class="preset-icon">👤</div>
+          <div class="preset-title">Fotos 3 x 4 cm</div>
+          <div class="preset-subtitle">Ideal para Documentos</div>
+        </div>
+
+        <div class="preset-card" onclick="selectGlobalPreset('a5', this)">
+          <div class="preset-icon">📄</div>
+          <div class="preset-title">Metade A4 (A5)</div>
+          <div class="preset-subtitle">15 x 21 cm</div>
+        </div>
       </div>
-      <div id="canvasScroll"><div id="canvas"></div></div>
-      <div class="page-label" id="pageLabel"></div>
     </div>
-    <div class="btn-row">
-      <button class="btn btn-secondary" onclick="voltarTela(2)">← Voltar</button>
-      <button class="btn btn-green" id="pdfBtn" onclick="gerarPDF()">
-        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Gerar PDF
-      </button>
+
+    <div class="preset-section">
+      <div class="section-label">Ajustar Fotos Individualmente</div>
+      <div class="individual-sizes-list" id="individualSizesList"></div>
     </div>
   </div>
 
+  <!-- PASSO 3: ORGANIZAR E GERAR PDF -->
+  <div class="card" id="step3" style="display:none;">
+    <div class="card-header">
+      <div class="card-title">Posicionar Fotos na Folha</div>
+      <div class="card-subtitle">Navegue pelas folhas A4, crie novas ou exclua. Arraste as fotos livremente.</div>
+    </div>
+
+    <div class="helper-tip">
+      <span style="font-size: 1.3rem;">💡</span>
+      <span><strong>Mover foto de folha:</strong> Toque na foto e escolha para qual folha deseja enviá-la abaixo.</span>
+    </div>
+
+    <div class="canvas-wrapper">
+      <div class="page-nav-bar">
+        <div class="page-nav-controls">
+          <button class="page-nav-btn" id="prevPageBtn" onclick="changePage(-1)" title="Folha Anterior">◀</button>
+          <span id="pageCounter" class="page-counter-badge">Folha 1 de 1</span>
+          <button class="page-nav-btn" id="nextPageBtn" onclick="changePage(1)" title="Próxima Folha">▶</button>
+        </div>
+
+        <div class="page-actions-btns">
+          <button class="btn-sm btn-add-page" onclick="addNewPage()" title="Adicionar Folha">+ Nova Folha</button>
+          <button class="btn-sm btn-delete-page" onclick="deleteCurrentPage()" title="Excluir Folha Atual">🗑️ Excluir Folha</button>
+        </div>
+      </div>
+
+      <div class="canvas-container" id="canvas"></div>
+    </div>
+
+    <!-- SELETOR DE DESTINO DA FOTO SELECIONADA -->
+    <div class="move-page-box">
+      <div class="section-label" style="margin-bottom: 4px;">Enviar Foto Selecionada Para:</div>
+      <div class="page-selector-chips" id="pageSelectorChips"></div>
+    </div>
+
+    <!-- FERRAMENTAS RÁPIDAS DE ALINHAMENTO -->
+    <div class="alignment-toolbar">
+      <div class="section-label" style="margin-bottom: 4px;">Alinhamento da Foto</div>
+      <div class="align-btns-grid">
+        <button class="align-btn" onclick="alignSelectedImage('center')">🎯 <span>Centralizar</span></button>
+        <button class="align-btn" onclick="openCropModal(selectedImageId)">✂️ <span>Recortar</span></button>
+        <button class="align-btn" onclick="rotateSelectedImage(null, selectedImageId)">↻ <span>Girar 90°</span></button>
+        <button class="align-btn" onclick="alignSelectedImage('top')">⬆️ <span>Topo</span></button>
+        <button class="align-btn" onclick="alignSelectedImage('bottom')">⬇️ <span>Base</span></button>
+        <button class="align-btn" style="background: var(--danger-light); color: var(--danger);" onclick="removeCanvasImage(null, selectedImageId)">🗑️ <span>Excluir Foto</span></button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- MODAL DE RECORTE INTERATIVO DE IMAGEM -->
+<div class="crop-modal" id="cropModal" style="display:none;">
+  <div class="crop-container">
+    <div class="crop-header">
+      <div class="crop-title">✂️ Recortar Foto</div>
+      <button class="icon-btn" onclick="closeCropModal()">✕</button>
+    </div>
+
+    <div class="crop-body">
+      <div class="crop-canvas-wrapper" id="cropCanvasWrapper">
+        <canvas id="cropCanvas"></canvas>
+      </div>
+
+      <div class="section-label" style="margin-bottom: -6px; width: 100%;">Proporção do Recorte:</div>
+      <div class="crop-ratios">
+        <button class="ratio-chip selected" onclick="setCropRatio('free', this)">Livre</button>
+        <button class="ratio-chip" onclick="setCropRatio('1:1', this)">1:1 (Quadrado)</button>
+        <button class="ratio-chip" onclick="setCropRatio('4:3', this)">4:3</button>
+        <button class="ratio-chip" onclick="setCropRatio('3:4', this)">3:4 (Documento)</button>
+        <button class="ratio-chip" onclick="setCropRatio('16:9', this)">16:9</button>
+      </div>
+    </div>
+
+    <div class="crop-footer">
+      <button class="btn btn-secondary" style="flex:1;" onclick="closeCropModal()">Cancelar</button>
+      <button class="btn btn-primary" style="flex:1.5;" onclick="applyCrop()">✓ Confirmar Recorte</button>
+    </div>
+  </div>
 </div>
+
+<!-- BARRA INFERIOR DE NAVEGAÇÃO / AÇÃO -->
+<div class="bottom-bar">
+  <button class="btn btn-secondary" id="backBtn" onclick="prevStep()" style="display:none;">← Voltar</button>
+  <button class="btn btn-primary" id="nextBtn" onclick="nextStep()">Continuar →</button>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
-/* ════ STATE ════ */
-let imagens   = [];
-let fileNames = [];
-let sizes     = [];    // [{w,h}] cm
-let rotations = [];    // 0,90,180,270
-let paginaHorizontal = false;
-let currentScale = 2.0;
+/* ══ ESTADO DA APLICAÇÃO ══ */
+let currentStep = 1;
+let imagesList = []; // [{ id, name, src, widthCm, heightCm, rotation, x, y, pageIndex }]
+let selectedPreset = 'full';
+let currentPage = 0;
+let totalPages = 1;
+let selectedImageId = null;
 
-const A4P = {w:210,h:297};
-const A4L = {w:297,h:210};
+const A4_MM_W = 210;
+const A4_MM_H = 297;
+let canvasScale = 1.0;
 
-/* ════ THEME ════ */
-function toggleTheme(){
+// Estado do Cropper
+let croppingImgId = null;
+let cropImageObj = null;
+let cropRect = { x: 0, y: 0, w: 0, h: 0 };
+let currentRatio = 'free';
+let isDraggingCrop = false;
+let cropDragHandle = null;
+let cropStartX = 0, cropStartY = 0;
+
+/* ══ GERENCIADOR DE TEMA ══ */
+function toggleTheme() {
   const html = document.documentElement;
-  const dark = html.getAttribute('data-theme')==='dark';
-  html.setAttribute('data-theme', dark?'light':'dark');
-  document.getElementById('themeBtn').textContent = dark ? '🌙' : '☀️';
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('themeToggleBtn').textContent = isDark ? '☀️' : '🌙';
 }
 
-/* ════ TOAST ════ */
-function showToast(msg,type='error'){
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.className='toast '+type; t.classList.add('show');
-  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),3200);
+/* ══ NAVEGAÇÃO PASSO A PASSO ══ */
+function goToStep(step) {
+  if (step === 2 && imagesList.length === 0) {
+    showToast('Por favor, adicione pelo menos uma foto!', 'error');
+    return;
+  }
+
+  currentStep = step;
+  document.getElementById('step1').style.display = step === 1 ? 'block' : 'none';
+  document.getElementById('step2').style.display = step === 2 ? 'block' : 'none';
+  document.getElementById('step3').style.display = step === 3 ? 'block' : 'none';
+
+  for (let i = 1; i <= 3; i++) {
+    const el = document.getElementById(`stepIndicator${i}`);
+    el.classList.remove('active', 'completed');
+    if (i === step) el.classList.add('active');
+    if (i < step) el.classList.add('completed');
+  }
+  document.getElementById('stepperLine').style.width = ((step - 1) / 2 * 100) + '%';
+
+  if (step === 2) {
+    renderIndividualSizesList();
+  }
+
+  const backBtn = document.getElementById('backBtn');
+  const nextBtn = document.getElementById('nextBtn');
+
+  if (step === 1) {
+    backBtn.style.display = 'none';
+    nextBtn.className = 'btn btn-primary';
+    nextBtn.textContent = 'Escolher Tamanhos →';
+  } else if (step === 2) {
+    backBtn.style.display = 'inline-flex';
+    nextBtn.className = 'btn btn-primary';
+    nextBtn.textContent = 'Ver Pré-visualização →';
+  } else if (step === 3) {
+    backBtn.style.display = 'inline-flex';
+    nextBtn.className = 'btn btn-success';
+    nextBtn.innerHTML = '📥 Baixar PDF';
+    autoOrganizePages();
+    currentPage = 0;
+    if (imagesList.length > 0 && !selectedImageId) {
+      selectedImageId = imagesList[0].id;
+    }
+    renderCanvasPage();
+  }
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-/* ════ DROPZONE ════ */
-const dz=document.getElementById('dropzone');
-const fi=document.getElementById('fileInput');
-const fia=document.getElementById('fileInputAdd');
-dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag-over')});
-dz.addEventListener('dragleave',()=>dz.classList.remove('drag-over'));
-dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag-over');loadFiles(e.dataTransfer.files,false)});
-dz.onclick=()=>fi.click();
-fi.onchange=e=>loadFiles(e.target.files,false);
-fia.onchange=e=>loadFiles(e.target.files,true);
+function nextStep() {
+  if (currentStep === 1) {
+    if (imagesList.length === 0) {
+      showToast('Escolha pelo menos uma foto para continuar.', 'error');
+      return;
+    }
+    goToStep(2);
+  } else if (currentStep === 2) {
+    goToStep(3);
+  } else if (currentStep === 3) {
+    generatePDF();
+  }
+}
 
-function loadFiles(files,append){
-  const valid=Array.from(files).filter(f=>f.type.startsWith('image/'));
-  if(!valid.length){showToast('Nenhuma imagem válida encontrada.');return;}
-  if(!append){imagens=[];fileNames=[];sizes=[];rotations=[];}
-  const start=imagens.length;
-  valid.forEach((_,i)=>{
-    imagens.push(null); fileNames.push(valid[i].name);
-    sizes.push({w:0,h:0}); rotations.push(0);
-  });
-  let loaded=0;
-  valid.forEach((file,i)=>{
-    const r=new FileReader();
-    r.onload=e=>{
-      imagens[start+i]=e.target.result; loaded++;
-      if(loaded===valid.length){
-        if(append){renderSizes();showToast(`${valid.length} imagem${valid.length>1?'ns':''} adicionada${valid.length>1?'s':''}!`,'success');}
-        else renderPreviews();
+function prevStep() {
+  if (currentStep > 1) goToStep(currentStep - 1);
+}
+
+/* ══ GERENCIAMENTO DE UPLOAD ══ */
+function handleFileSelect(e) {
+  const files = Array.from(e.target.files).filter(f => f.type.startsWith('image/'));
+  if (!files.length) return;
+
+  let loaded = 0;
+  files.forEach((file) => {
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const id = Date.now() + Math.random();
+      imagesList.push({
+        id: id,
+        name: file.name || `Foto ${imagesList.length + 1}`,
+        src: ev.target.result,
+        widthCm: 21,
+        heightCm: 29.7,
+        rotation: 0,
+        x: 0,
+        y: 0,
+        pageIndex: 0
+      });
+      loaded++;
+      if (loaded === files.length) {
+        renderImagesGrid();
+        showToast(`${files.length} foto(s) adicionada(s)!`, 'success');
       }
     };
-    r.readAsDataURL(file);
+    reader.readAsDataURL(file);
   });
+  e.target.value = '';
 }
 
-function renderPreviews(){
-  const list=document.getElementById('previewList');
-  const cnt=document.getElementById('previewCount');
-  list.innerHTML='';
-  imagens.forEach((src,i)=>{
-    const c=document.createElement('div'); c.className='preview-chip';
-    c.innerHTML=`<img src="${src}" alt=""><span>${fileNames[i]||'img'}</span>`;
-    list.appendChild(c);
-  });
-  list.classList.remove('hidden');
-  cnt.textContent=`${imagens.length} imagem${imagens.length>1?'ns':''} selecionada${imagens.length>1?'s':''}`;
-  cnt.classList.remove('hidden');
-  showToast(`${imagens.length} imagem${imagens.length>1?'ns':''} carregada${imagens.length>1?'s':''}!`,'success');
+function removeImage(idx) {
+  imagesList.splice(idx, 1);
+  renderImagesGrid();
+  if (currentStep === 2) renderIndividualSizesList();
+  showToast('Foto removida.', 'success');
 }
 
-/* ════ NAVIGATION ════ */
-function trocarTela(n){
-  document.querySelectorAll('.card').forEach(c=>c.classList.add('hidden'));
-  document.getElementById('tela'+n).classList.remove('hidden');
-  updateStepper(n);
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-function voltarTela(n){if(n===2)saveSizes();trocarTela(n);if(n===2)renderSizes();}
-function updateStepper(n){
-  for(let i=1;i<=3;i++){
-    const st=document.getElementById('st'+i);
-    st.classList.remove('active','done');
-    if(i<n)st.classList.add('done');
-    if(i===n)st.classList.add('active');
-    if(i<3)document.getElementById('sl'+i).classList.toggle('done',i<n);
-  }
-}
-
-/* ════ STEP 2 ════ */
-function irParaTamanhos(){
-  if(!imagens.length||imagens.some(x=>!x)){showToast('Envie pelo menos uma imagem.');return;}
-  trocarTela(2); renderSizes();
-}
-
-function renderSizes(){
-  const div=document.getElementById('sizes'); div.innerHTML='';
-  imagens.forEach((img,i)=>{
-    const row=document.createElement('div'); row.className='size-row';
-    row.innerHTML=`
-      <img class="thumb" src="${img}" alt="">
-      <div>
-        <div class="size-label">Arquivo</div>
-        <div class="size-filename">${fileNames[i]||'imagem '+(i+1)}</div>
+function renderImagesGrid() {
+  const grid = document.getElementById('imagesGrid');
+  grid.innerHTML = '';
+  imagesList.forEach((img, i) => {
+    const card = document.createElement('div');
+    card.className = 'image-card';
+    card.innerHTML = `
+      <img src="${img.src}" alt="Foto ${i+1}">
+      <div class="image-card-actions">
+        <button class="image-card-btn" onclick="openCropModal(${img.id})" title="Recortar">✂️</button>
+        <button class="image-card-btn remove" onclick="removeImage(${i})" title="Remover">✕</button>
       </div>
-      <div class="inp-wrap">
-        <label>Largura (cm)</label>
-        <input type="number" id="w${i}" value="${sizes[i]?.w||''}" placeholder="ex: 12" min="0.1" max="30" step="0.1">
-      </div>
-      <div class="inp-wrap">
-        <label>Altura (cm)</label>
-        <input type="number" id="h${i}" value="${sizes[i]?.h||''}" placeholder="ex: 9" min="0.1" max="29.7" step="0.1">
-      </div>
-      <button class="btn btn-danger" onclick="removeImage(${i})" title="Remover">✕</button>`;
-    div.appendChild(row);
+      <div class="image-card-num">#${i+1}</div>
+    `;
+    grid.appendChild(card);
   });
 }
 
-function saveSizes(){
-  imagens.forEach((_,i)=>{
-    const we=document.getElementById('w'+i),he=document.getElementById('h'+i);
-    if(we)sizes[i]={w:parseFloat(we.value)||0,h:parseFloat(he.value)||0};
+/* ══ SELEÇÃO GLOBAL DE PRESET ══ */
+function selectGlobalPreset(preset, el) {
+  selectedPreset = preset;
+  document.querySelectorAll('.preset-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+
+  let w = 21, h = 29.7;
+  if (preset === '10x15') { w = 10; h = 15; }
+  else if (preset === '13x18') { w = 13; h = 18; }
+  else if (preset === '3x4') { w = 3; h = 4; }
+  else if (preset === 'a5') { w = 14.8; h = 21; }
+
+  imagesList.forEach(img => {
+    img.widthCm = w;
+    img.heightCm = h;
+  });
+
+  renderIndividualSizesList();
+  showToast(`Tamanho ${w} x ${h} cm aplicado a todas!`, 'success');
+}
+
+function renderIndividualSizesList() {
+  const container = document.getElementById('individualSizesList');
+  container.innerHTML = '';
+
+  imagesList.forEach((img, index) => {
+    const card = document.createElement('div');
+    card.className = 'size-item-card';
+    card.innerHTML = `
+      <div class="size-item-header">
+        <img class="size-item-thumb" src="${img.src}" alt="Thumb">
+        <div class="size-item-info">
+          <div class="size-item-title">#${index + 1} - ${img.name || 'Foto'}</div>
+          <div class="size-item-tags">
+            <button class="tag-btn" onclick="openCropModal(${img.id})">✂️ Recortar</button>
+            <button class="tag-btn" onclick="setItemSize(${index}, 21, 29.7)">Full A4</button>
+            <button class="tag-btn" onclick="setItemSize(${index}, 10, 15)">10x15</button>
+            <button class="tag-btn" onclick="setItemSize(${index}, 3, 4)">3x4</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="size-item-inputs">
+        <div class="input-group">
+          <div class="input-label">Largura (cm)</div>
+          <div class="stepper-input">
+            <button class="stepper-btn" onclick="stepItemDimension(${index}, 'width', -0.5)">-</button>
+            <input type="number" class="stepper-field" value="${img.widthCm}" min="1" max="21" step="0.5" onchange="updateItemDimension(${index}, 'width', this.value)">
+            <button class="stepper-btn" onclick="stepItemDimension(${index}, 'width', 0.5)">+</button>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <div class="input-label">Altura (cm)</div>
+          <div class="stepper-input">
+            <button class="stepper-btn" onclick="stepItemDimension(${index}, 'height', -0.5)">-</button>
+            <input type="number" class="stepper-field" value="${img.heightCm}" min="1" max="29.7" step="0.5" onchange="updateItemDimension(${index}, 'height', this.value)">
+            <button class="stepper-btn" onclick="stepItemDimension(${index}, 'height', 0.5)">+</button>
+          </div>
+        </div>
+      </div>
+    `;
+    container.appendChild(card);
   });
 }
 
-function removeImage(i){
-  saveSizes();
-  imagens.splice(i,1); fileNames.splice(i,1); sizes.splice(i,1); rotations.splice(i,1);
-  if(!imagens.length){trocarTela(1);showToast('Todas as imagens foram removidas.');return;}
-  renderSizes(); showToast('Imagem removida.','success');
+function setItemSize(index, w, h) {
+  imagesList[index].widthCm = w;
+  imagesList[index].heightCm = h;
+  renderIndividualSizesList();
 }
 
-function validarTamanhos(){
-  saveSizes();
-  paginaHorizontal=sizes.some(s=>s.w>20);
-  const page=paginaHorizontal?A4L:A4P;
-  const maxW=page.w/10, maxH=page.h/10;
-  for(let i=0;i<imagens.length;i++){
-    const{w,h}=sizes[i];
-    if(!w||!h||w<=0||h<=0){showToast(`Imagem ${i+1}: insira largura e altura válidas.`);return;}
-    if(w>maxW){showToast(`Imagem ${i+1}: largura máx. ${maxW} cm (modo ${paginaHorizontal?'paisagem':'retrato'}).`);return;}
-    if(h>maxH){showToast(`Imagem ${i+1}: altura máx. ${maxH.toFixed(1)} cm (modo ${paginaHorizontal?'paisagem':'retrato'}).`);return;}
-  }
-  trocarTela(3); renderCanvas();
-}
-
-/* ════ STEP 3 — CANVAS ════ */
-function calcScale(pw,ph){
-  const sc=document.getElementById('canvasScroll');
-  const aw=Math.max(280,sc.clientWidth-4);
-  const ah=Math.max(260,window.innerHeight-400);
-  return Math.min(aw/pw, ah/ph);
-}
-
-function renderCanvas(){
-  const cv=document.getElementById('canvas');
-  cv.innerHTML='';
-  const page=paginaHorizontal?A4L:A4P;
-  currentScale=calcScale(page.w,page.h);
-  cv.style.width =Math.round(page.w*currentScale)+'px';
-  cv.style.height=Math.round(page.h*currentScale)+'px';
-
-  const tag=document.getElementById('orientTag');
-  if(paginaHorizontal){
-    tag.className='orientation-tag orient-landscape';
-    tag.innerHTML='⇔ Paisagem — A4 Horizontal';
+function stepItemDimension(index, prop, delta) {
+  if (prop === 'width') {
+    let newW = Math.max(1, Math.min(21, (imagesList[index].widthCm + delta)));
+    imagesList[index].widthCm = Math.round(newW * 10) / 10;
   } else {
-    tag.className='orientation-tag orient-portrait';
-    tag.innerHTML='⇕ Retrato — A4 Vertical';
+    let newH = Math.max(1, Math.min(29.7, (imagesList[index].heightCm + delta)));
+    imagesList[index].heightCm = Math.round(newH * 10) / 10;
   }
-  document.getElementById('pageLabel').textContent=
-    `A4 ${paginaHorizontal?'Paisagem':'Retrato'} · ${page.w} × ${page.h} mm`;
-
-  imagens.forEach((src,i)=>{
-    const el=buildItem(src,i,sizes[i].w*10,sizes[i].h*10,rotations[i]||0,cv);
-    el.style.left='0px';
-    el.style.top=Math.min(i*14,(page.h*currentScale-50))+'px';
-    cv.appendChild(el);
-  });
+  renderIndividualSizesList();
 }
 
-function buildItem(src,idx,wMM,hMM,rot,container){
-  const el=document.createElement('div');
-  el.className='img-item'; el.dataset.idx=idx;
-
-  const img=document.createElement('img');
-  img.src=src;
-
-  const ov=document.createElement('div'); ov.className='img-overlay';
-  ov.innerHTML=`<div class="img-overlay-bar"><button class="img-btn" title="Girar 90°">↻</button></div>`;
-  ov.querySelector('.img-btn').addEventListener('pointerdown',e=>e.stopPropagation());
-  ov.querySelector('.img-btn').addEventListener('click',e=>{e.stopPropagation();rotateItem(idx);});
-
-  el.appendChild(img); el.appendChild(ov);
-  setRotation(el,img,wMM,hMM,rot);
-  enableDrag(el,container);
-  return el;
+function updateItemDimension(index, prop, val) {
+  let v = parseFloat(val) || 1;
+  if (prop === 'width') {
+    imagesList[index].widthCm = Math.max(1, Math.min(21, v));
+  } else {
+    imagesList[index].heightCm = Math.max(1, Math.min(29.7, v));
+  }
 }
 
-function setRotation(el,img,wMM,hMM,rot){
-  const s=currentScale, wPx=wMM*s, hPx=hMM*s;
-  const swap=(rot===90||rot===270);
-  const dW=swap?hPx:wPx, dH=swap?wPx:hPx;
-  el.style.width=dW+'px'; el.style.height=dH+'px';
-  img.style.width=wPx+'px'; img.style.height=hPx+'px';
-  img.style.left=(dW/2-wPx/2)+'px'; img.style.top=(dH/2-hPx/2)+'px';
-  img.style.transform=`rotate(${rot}deg)`;
-}
+/* ══ AUTO-ORGANIZAÇÃO DE PÁGINAS A4 ══ */
+function autoOrganizePages() {
+  let curPage = 0;
+  let curX = 1.0;
+  let curY = 1.0;
+  let rowMaxH = 0;
 
-function rotateItem(idx){
-  rotations[idx]=(rotations[idx]+90)%360;
-  const cv=document.getElementById('canvas');
-  const page=paginaHorizontal?A4L:A4P;
-  const el=cv.querySelector(`[data-idx="${idx}"]`);
-  if(!el)return;
-  const img=el.querySelector('img');
-  setRotation(el,img,sizes[idx].w*10,sizes[idx].h*10,rotations[idx]);
-  const ml=page.w*currentScale-el.offsetWidth;
-  const mt=page.h*currentScale-el.offsetHeight;
-  el.style.left=Math.max(0,Math.min(parseFloat(el.style.left),ml))+'px';
-  el.style.top =Math.max(0,Math.min(parseFloat(el.style.top), mt))+'px';
-}
+  imagesList.forEach((img) => {
+    const isRotated90 = (img.rotation === 90 || img.rotation === 270);
+    const w = isRotated90 ? img.heightCm : img.widthCm;
+    const h = isRotated90 ? img.widthCm : img.heightCm;
 
-function enableDrag(el,container){
-  el.onpointerdown=e=>{
-    if(e.target.closest('.img-btn'))return;
-    e.preventDefault(); el.setPointerCapture(e.pointerId);
-    const ox=e.clientX-el.offsetLeft, oy=e.clientY-el.offsetTop;
-    el.style.zIndex=20;
-    el.onpointermove=e=>{
-      let nx=e.clientX-ox, ny=e.clientY-oy;
-      nx=Math.max(0,Math.min(nx,container.offsetWidth -el.offsetWidth));
-      ny=Math.max(0,Math.min(ny,container.offsetHeight-el.offsetHeight));
-      el.style.left=nx+'px'; el.style.top=ny+'px';
-    };
-    el.onpointerup=()=>{el.style.zIndex='';el.onpointermove=null;el.onpointerup=null;};
-  };
-}
-
-/* ════ PDF ════ */
-function getRotatedDataURL(src,rot){
-  return new Promise(res=>{
-    const img=new Image(); img.onload=()=>{
-      const oc=document.createElement('canvas');
-      const sw=(rot===90||rot===270);
-      oc.width=sw?img.height:img.width; oc.height=sw?img.width:img.height;
-      const ctx=oc.getContext('2d');
-      ctx.translate(oc.width/2,oc.height/2);
-      ctx.rotate(rot*Math.PI/180);
-      ctx.drawImage(img,-img.width/2,-img.height/2);
-      res(oc.toDataURL('image/png'));
-    }; img.src=src;
-  });
-}
-
-async function gerarPDF(){
-  const btn=document.getElementById('pdfBtn');
-  btn.textContent='⏳ Gerando…'; btn.disabled=true;
-  try{
-    const{jsPDF}=window.jspdf;
-    const pdf=new jsPDF(paginaHorizontal?'l':'p','mm','a4');
-    const s=currentScale;
-    const items=document.querySelectorAll('#canvas .img-item');
-    for(let i=0;i<items.length;i++){
-      const el=items[i]; const idx=parseInt(el.dataset.idx);
-      const x=el.offsetLeft/s, y=el.offsetTop/s;
-      const w=el.offsetWidth/s, h=el.offsetHeight/s;
-      const data=await getRotatedDataURL(imagens[idx],rotations[idx]||0);
-      pdf.addImage(data,'PNG',x,y,w,h);
+    if (w >= 21 || h >= 29.7) {
+      if (curX > 1.0 || curY > 1.0) curPage++;
+      img.pageIndex = curPage;
+      img.x = 0;
+      img.y = 0;
+      curPage++;
+      curX = 1.0; curY = 1.0; rowMaxH = 0;
+      return;
     }
-    pdf.save('documento.pdf');
-    showToast('PDF gerado com sucesso!','success');
-  }catch(e){showToast('Erro ao gerar o PDF.');console.error(e);}
-  finally{
-    btn.innerHTML=`<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Gerar PDF`;
-    btn.disabled=false;
+
+    if (curX + w > 20.0) {
+      curX = 1.0;
+      curY += rowMaxH + 0.8;
+      rowMaxH = 0;
+    }
+
+    if (curY + h > 28.5) {
+      curPage++;
+      curX = 1.0;
+      curY = 1.0;
+      rowMaxH = 0;
+    }
+
+    img.pageIndex = curPage;
+    img.x = curX;
+    img.y = curY;
+
+    curX += w + 0.8;
+    if (h > rowMaxH) rowMaxH = h;
+  });
+
+  totalPages = Math.max(1, curPage + (curX > 1.0 || curY > 1.0 ? 1 : 0));
+}
+
+/* ══ GERENCIAMENTO E NAVEGAÇÃO DE FOLHAS A4 ══ */
+function changePage(delta) {
+  const newPage = currentPage + delta;
+  if (newPage >= 0 && newPage < totalPages) {
+    currentPage = newPage;
+    renderCanvasPage();
   }
 }
 
-function irParaTela1(){
-  trocarTela(1);
-  // reset step 1 visual state so user can re-upload if needed
+function addNewPage() {
+  totalPages++;
+  currentPage = totalPages - 1;
+  renderCanvasPage();
+  showToast(`Nova Folha ${totalPages} criada!`, 'success');
 }
 
-window.addEventListener('scroll',()=>{
-  const btn=document.getElementById('scrollTopBtn');
-  btn.classList.toggle('visible', window.scrollY > 200);
-});
+function deleteCurrentPage() {
+  if (totalPages <= 1) {
+    showToast('Você precisa ter pelo menos 1 folha no documento!', 'error');
+    return;
+  }
 
-window.addEventListener('resize',()=>{
-  if(!document.getElementById('tela3').classList.contains('hidden')) renderCanvas();
+  const targetPage = Math.max(0, currentPage - 1);
+  imagesList.forEach(img => {
+    if (img.pageIndex === currentPage) {
+      img.pageIndex = targetPage;
+      img.x = 1.0;
+      img.y = 1.0;
+    } else if (img.pageIndex > currentPage) {
+      img.pageIndex--;
+    }
+  });
+
+  totalPages--;
+  currentPage = Math.min(currentPage, totalPages - 1);
+  renderCanvasPage();
+  showToast('Folha excluída com sucesso!', 'success');
+}
+
+/* MOVER FOTO SELECIONADA COM SELETOR VISUAL DIRETO */
+function renderPageSelectorChips() {
+  const container = document.getElementById('pageSelectorChips');
+  if (!container) return;
+  container.innerHTML = '';
+
+  if (!selectedImageId) {
+    container.innerHTML = '<span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;">Toque em uma foto na folha para escolher para onde enviá-la.</span>';
+    return;
+  }
+
+  const selectedImg = imagesList.find(i => i.id === selectedImageId);
+  if (!selectedImg) return;
+
+  for (let p = 0; p < totalPages; p++) {
+    const isCurrent = (selectedImg.pageIndex === p);
+    const chip = document.createElement('button');
+    chip.className = `page-chip ${isCurrent ? 'active' : ''}`;
+    chip.innerHTML = `Folha ${p + 1}${isCurrent ? ' (Atual)' : ''}`;
+    chip.onclick = () => moveSelectedImageToPage(p);
+    container.appendChild(chip);
+  }
+
+  const newPageChip = document.createElement('button');
+  newPageChip.className = 'page-chip create-new';
+  newPageChip.innerHTML = '➕ Criar Folha e Mover';
+  newPageChip.onclick = () => moveSelectedImageToNewPage();
+  container.appendChild(newPageChip);
+}
+
+function moveSelectedImageToPage(targetPage) {
+  if (!selectedImageId) {
+    showToast('Toque em uma foto primeiro!', 'error');
+    return;
+  }
+
+  const img = imagesList.find(i => i.id === selectedImageId);
+  if (img) {
+    img.pageIndex = targetPage;
+    img.x = 1.0;
+    img.y = 1.0;
+    currentPage = targetPage;
+    renderCanvasPage();
+    showToast(`Foto movida para a Folha ${targetPage + 1}!`, 'success');
+  }
+}
+
+function moveSelectedImageToNewPage() {
+  if (!selectedImageId) {
+    showToast('Toque em uma foto primeiro!', 'error');
+    return;
+  }
+  totalPages++;
+  const newPage = totalPages - 1;
+  moveSelectedImageToPage(newPage);
+}
+
+/* ══ CANVAS TOUCH RESPONSIVO (CORRIGIDO: SUPORTE PERFEITO A IMAGENS GIRADAS) ══ */
+function renderCanvasPage() {
+  const container = document.getElementById('canvas');
+  container.innerHTML = '';
+
+  const wrapper = container.parentElement;
+  const availW = Math.min(wrapper.clientWidth - 20, 500);
+  canvasScale = availW / A4_MM_W;
+
+  const canvasPxW = Math.round(A4_MM_W * canvasScale);
+  const canvasPxH = Math.round(A4_MM_H * canvasScale);
+
+  container.style.width = canvasPxW + 'px';
+  container.style.height = canvasPxH + 'px';
+
+  document.getElementById('pageCounter').textContent = `Folha ${currentPage + 1} de ${totalPages}`;
+  document.getElementById('prevPageBtn').disabled = (currentPage === 0);
+  document.getElementById('nextPageBtn').disabled = (currentPage === totalPages - 1);
+
+  const pageImages = imagesList.filter(img => img.pageIndex === currentPage);
+
+  pageImages.forEach((imgData) => {
+    const item = document.createElement('div');
+    item.className = `canvas-item ${selectedImageId === imgData.id ? 'selected' : ''}`;
+    item.dataset.id = imgData.id;
+
+    // Checa se a imagem está girada 90 ou 270 graus para inverter a largura e altura do container
+    const isRotated90 = (imgData.rotation === 90 || imgData.rotation === 270);
+    const displayWCm = isRotated90 ? imgData.heightCm : imgData.widthCm;
+    const displayHCm = isRotated90 ? imgData.widthCm : imgData.heightCm;
+
+    const containerWPx = displayWCm * 10 * canvasScale;
+    const containerHPx = displayHCm * 10 * canvasScale;
+    const xPx = imgData.x * 10 * canvasScale;
+    const yPx = imgData.y * 10 * canvasScale;
+
+    item.style.width = containerWPx + 'px';
+    item.style.height = containerHPx + 'px';
+    item.style.left = xPx + 'px';
+    item.style.top = yPx + 'px';
+
+    const imgEl = document.createElement('img');
+    imgEl.src = imgData.src;
+
+    const originalWPx = imgData.widthCm * 10 * canvasScale;
+    const originalHPx = imgData.heightCm * 10 * canvasScale;
+
+    imgEl.style.width = originalWPx + 'px';
+    imgEl.style.height = originalHPx + 'px';
+    imgEl.style.position = 'absolute';
+    imgEl.style.left = ((containerWPx - originalWPx) / 2) + 'px';
+    imgEl.style.top = ((containerHPx - originalHPx) / 2) + 'px';
+    imgEl.style.transform = `rotate(${imgData.rotation}deg)`;
+
+    item.appendChild(imgEl);
+
+    setupTouchDrag(item, imgData, container);
+    container.appendChild(item);
+  });
+
+  renderPageSelectorChips();
+}
+
+function selectCanvasItem(id) {
+  selectedImageId = id;
+  const container = document.getElementById('canvas');
+  const items = container.querySelectorAll('.canvas-item');
+  items.forEach(el => {
+    if (parseFloat(el.dataset.id) === id) {
+      el.classList.add('selected');
+    } else {
+      el.classList.remove('selected');
+    }
+  });
+
+  renderPageSelectorChips();
+}
+
+function setupTouchDrag(el, imgData, container) {
+  let isDragging = false;
+  let startX = 0, startY = 0;
+  let initialLeft = 0, initialTop = 0;
+
+  const onPointerDown = (e) => {
+    e.preventDefault();
+    isDragging = true;
+    selectCanvasItem(imgData.id);
+
+    startX = e.clientX || 0;
+    startY = e.clientY || 0;
+
+    initialLeft = parseFloat(el.style.left) || 0;
+    initialTop = parseFloat(el.style.top) || 0;
+
+    try {
+      el.setPointerCapture(e.pointerId);
+    } catch(err) {}
+  };
+
+  const onPointerMove = (e) => {
+    if (!isDragging) return;
+    e.preventDefault();
+
+    const currentX = e.clientX || 0;
+    const currentY = e.clientY || 0;
+
+    const dx = currentX - startX;
+    const dy = currentY - startY;
+
+    let newLeft = initialLeft + dx;
+    let newTop = initialTop + dy;
+
+    // Calcula os limites corretos considerando a rotação da imagem
+    const maxLeft = container.offsetWidth - el.offsetWidth;
+    const maxTop = container.offsetHeight - el.offsetHeight;
+
+    newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+    newTop = Math.max(0, Math.min(newTop, maxTop));
+
+    el.style.left = newLeft + 'px';
+    el.style.top = newTop + 'px';
+
+    imgData.x = (newLeft / canvasScale) / 10;
+    imgData.y = (newTop / canvasScale) / 10;
+  };
+
+  const onPointerUp = (e) => {
+    if (isDragging) {
+      isDragging = false;
+      try {
+        el.releasePointerCapture(e.pointerId);
+      } catch(err) {}
+    }
+  };
+
+  el.addEventListener('pointerdown', onPointerDown);
+  el.addEventListener('pointermove', onPointerMove);
+  el.addEventListener('pointerup', onPointerUp);
+  el.addEventListener('pointercancel', onPointerUp);
+}
+
+function alignSelectedImage(type) {
+  if (!selectedImageId) {
+    showToast('Toque em uma foto primeiro!', 'error');
+    return;
+  }
+
+  const img = imagesList.find(i => i.id === selectedImageId);
+  if (!img) return;
+
+  const isRotated90 = (img.rotation === 90 || img.rotation === 270);
+  const displayWCm = isRotated90 ? img.heightCm : img.widthCm;
+  const displayHCm = isRotated90 ? img.widthCm : img.heightCm;
+
+  if (type === 'center') {
+    img.x = Math.max(0, (21 - displayWCm) / 2);
+    img.y = Math.max(0, (29.7 - displayHCm) / 2);
+  } else if (type === 'top') {
+    img.y = 0;
+  } else if (type === 'bottom') {
+    img.y = Math.max(0, 29.7 - displayHCm);
+  } else if (type === 'left') {
+    img.x = 0;
+  } else if (type === 'right') {
+    img.x = Math.max(0, 21 - displayWCm);
+  }
+
+  renderCanvasPage();
+  showToast('Posição alinhada!', 'success');
+}
+
+function rotateSelectedImage(e, id) {
+  if (e) e.stopPropagation();
+  const targetId = id || selectedImageId;
+  const img = imagesList.find(i => i.id === targetId);
+  if (img) {
+    img.rotation = (img.rotation + 90) % 360;
+
+    // Checa limites de movimento para evitar travar na folha após girar
+    const isRotated90 = (img.rotation === 90 || img.rotation === 270);
+    const displayWCm = isRotated90 ? img.heightCm : img.widthCm;
+    const displayHCm = isRotated90 ? img.widthCm : img.heightCm;
+
+    if (img.x + displayWCm > 21) img.x = Math.max(0, 21 - displayWCm);
+    if (img.y + displayHCm > 29.7) img.y = Math.max(0, 29.7 - displayHCm);
+
+    renderCanvasPage();
+  }
+}
+
+function removeCanvasImage(e, id) {
+  if (e) e.stopPropagation();
+  const targetId = id || selectedImageId;
+  if (!targetId) {
+    showToast('Selecione uma foto para excluir!', 'error');
+    return;
+  }
+  imagesList = imagesList.filter(i => i.id !== targetId);
+  selectedImageId = imagesList.length > 0 ? imagesList[0].id : null;
+  renderCanvasPage();
+  showToast('Foto excluída da folha.', 'success');
+}
+
+/* ══ MOTOR DE RECORTE (CROPPER) INTERATIVO DE IMAGEM ══ */
+function openCropModal(id) {
+  const targetId = id || selectedImageId;
+  const imgData = imagesList.find(i => i.id === targetId);
+  if (!imgData) {
+    showToast('Escolha uma foto para recortar.', 'error');
+    return;
+  }
+
+  croppingImgId = targetId;
+  const modal = document.getElementById('cropModal');
+  modal.style.display = 'flex';
+
+  cropImageObj = new Image();
+  cropImageObj.onload = () => {
+    initCropCanvas();
+  };
+  cropImageObj.src = imgData.src;
+}
+
+function closeCropModal() {
+  document.getElementById('cropModal').style.display = 'none';
+  croppingImgId = null;
+  cropImageObj = null;
+}
+
+function setCropRatio(ratio, el) {
+  currentRatio = ratio;
+  document.querySelectorAll('.ratio-chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  applyAspectToCropRect();
+  drawCropCanvas();
+}
+
+function initCropCanvas() {
+  const canvas = document.getElementById('cropCanvas');
+
+  const maxW = Math.min(window.innerWidth - 64, 460);
+  const maxH = Math.min(window.innerHeight * 0.45, 360);
+
+  let w = cropImageObj.width;
+  let h = cropImageObj.height;
+
+  const scale = Math.min(maxW / w, maxH / h);
+  canvas.width = Math.round(w * scale);
+  canvas.height = Math.round(h * scale);
+
+  cropRect = {
+    x: Math.round(canvas.width * 0.1),
+    y: Math.round(canvas.height * 0.1),
+    w: Math.round(canvas.width * 0.8),
+    h: Math.round(canvas.height * 0.8)
+  };
+
+  applyAspectToCropRect();
+  drawCropCanvas();
+  setupCropEvents(canvas);
+}
+
+function applyAspectToCropRect() {
+  if (currentRatio === 'free' || !cropRect.w || !cropRect.h) return;
+  let targetRatio = 1.0;
+  if (currentRatio === '1:1') targetRatio = 1.0;
+  else if (currentRatio === '4:3') targetRatio = 4 / 3;
+  else if (currentRatio === '3:4') targetRatio = 3 / 4;
+  else if (currentRatio === '16:9') targetRatio = 16 / 9;
+
+  let newH = cropRect.w / targetRatio;
+  const canvas = document.getElementById('cropCanvas');
+  if (cropRect.y + newH > canvas.height) {
+    newH = canvas.height - cropRect.y;
+    cropRect.w = newH * targetRatio;
+  }
+  cropRect.h = Math.round(newH);
+}
+
+function drawCropCanvas() {
+  const canvas = document.getElementById('cropCanvas');
+  if (!canvas || !cropImageObj) return;
+  const ctx = canvas.getContext('2d');
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(cropImageObj, 0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(cropRect.x, cropRect.y, cropRect.w, cropRect.h);
+  ctx.clip();
+  ctx.drawImage(cropImageObj, 0, 0, canvas.width, canvas.height);
+  ctx.restore();
+
+  ctx.strokeStyle = '#6366f1';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(cropRect.x, cropRect.y, cropRect.w, cropRect.h);
+
+  const handleRadius = 7;
+  ctx.fillStyle = '#ffffff';
+  ctx.strokeStyle = '#6366f1';
+  ctx.lineWidth = 2;
+
+  const corners = [
+    { x: cropRect.x, y: cropRect.y },
+    { x: cropRect.x + cropRect.w, y: cropRect.y },
+    { x: cropRect.x, y: cropRect.y + cropRect.h },
+    { x: cropRect.x + cropRect.w, y: cropRect.y + cropRect.h }
+  ];
+
+  corners.forEach(c => {
+    ctx.beginPath();
+    ctx.arc(c.x, c.y, handleRadius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+  });
+}
+
+function setupCropEvents(canvas) {
+  const getPos = (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const clientX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+    const clientY = e.clientY || (e.touches && e.touches[0].clientY) || 0;
+    return {
+      x: clientX - rect.left,
+      y: clientY - rect.top
+    };
+  };
+
+  const onDown = (e) => {
+    e.preventDefault();
+    const pos = getPos(e);
+    isDraggingCrop = true;
+    cropStartX = pos.x;
+    cropStartY = pos.y;
+
+    const r = 20;
+    if (Math.hypot(pos.x - cropRect.x, pos.y - cropRect.y) < r) cropDragHandle = 'nw';
+    else if (Math.hypot(pos.x - (cropRect.x + cropRect.w), pos.y - cropRect.y) < r) cropDragHandle = 'ne';
+    else if (Math.hypot(pos.x - cropRect.x, pos.y - (cropRect.y + cropRect.h)) < r) cropDragHandle = 'sw';
+    else if (Math.hypot(pos.x - (cropRect.x + cropRect.w), pos.y - (cropRect.y + cropRect.h)) < r) cropDragHandle = 'se';
+    else if (pos.x >= cropRect.x && pos.x <= cropRect.x + cropRect.w && pos.y >= cropRect.y && pos.y <= cropRect.y + cropRect.h) {
+      cropDragHandle = 'move';
+    } else {
+      cropDragHandle = null;
+    }
+  };
+
+  const onMove = (e) => {
+    if (!isDraggingCrop || !cropDragHandle) return;
+    e.preventDefault();
+    const pos = getPos(e);
+    const dx = pos.x - cropStartX;
+    const dy = pos.y - cropStartY;
+    cropStartX = pos.x;
+    cropStartY = pos.y;
+
+    if (cropDragHandle === 'move') {
+      cropRect.x = Math.max(0, Math.min(canvas.width - cropRect.w, cropRect.x + dx));
+      cropRect.y = Math.max(0, Math.min(canvas.height - cropRect.h, cropRect.y + dy));
+    } else if (cropDragHandle === 'se') {
+      cropRect.w = Math.max(30, Math.min(canvas.width - cropRect.x, cropRect.w + dx));
+      cropRect.h = Math.max(30, Math.min(canvas.height - cropRect.y, cropRect.h + dy));
+      applyAspectToCropRect();
+    } else if (cropDragHandle === 'nw') {
+      const newW = Math.max(30, cropRect.w - dx);
+      const newH = Math.max(30, cropRect.h - dy);
+      cropRect.x += (cropRect.w - newW);
+      cropRect.y += (cropRect.h - newH);
+      cropRect.w = newW;
+      cropRect.h = newH;
+      applyAspectToCropRect();
+    }
+
+    drawCropCanvas();
+  };
+
+  const onUp = () => {
+    isDraggingCrop = false;
+    cropDragHandle = null;
+  };
+
+  canvas.onpointerdown = onDown;
+  canvas.onpointermove = onMove;
+  canvas.onpointerup = onUp;
+}
+
+function applyCrop() {
+  if (!cropImageObj || !croppingImgId) return;
+
+  const canvas = document.getElementById('cropCanvas');
+  const scaleX = cropImageObj.width / canvas.width;
+  const scaleY = cropImageObj.height / canvas.height;
+
+  const srcX = Math.round(cropRect.x * scaleX);
+  const srcY = Math.round(cropRect.y * scaleY);
+  const srcW = Math.round(cropRect.w * scaleX);
+  const srcH = Math.round(cropRect.h * scaleY);
+
+  const outCanvas = document.createElement('canvas');
+  outCanvas.width = srcW;
+  outCanvas.height = srcH;
+
+  const ctx = outCanvas.getContext('2d');
+  ctx.drawImage(cropImageObj, srcX, srcY, srcW, srcH, 0, 0, srcW, srcH);
+
+  const croppedDataUrl = outCanvas.toDataURL('image/png');
+
+  const imgData = imagesList.find(i => i.id === croppingImgId);
+  if (imgData) {
+    imgData.src = croppedDataUrl;
+    renderImagesGrid();
+    if (currentStep === 2) renderIndividualSizesList();
+    if (currentStep === 3) renderCanvasPage();
+    showToast('Foto recortada com sucesso!', 'success');
+  }
+
+  closeCropModal();
+}
+
+/* ══ GERAÇÃO DO PDF PROFISSIONAL (COM SUPORTE A ROTAÇÃO CORRETA) ══ */
+async function generatePDF() {
+  if (imagesList.length === 0) {
+    showToast('Adicione pelo menos uma foto antes de baixar.', 'error');
+    return;
+  }
+
+  const nextBtn = document.getElementById('nextBtn');
+  nextBtn.innerHTML = '⏳ Gerando PDF...';
+  nextBtn.disabled = true;
+
+  try {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'mm', 'a4');
+
+    for (let page = 0; page < totalPages; page++) {
+      if (page > 0) pdf.addPage();
+
+      const pageImgs = imagesList.filter(i => i.pageIndex === page);
+
+      for (const imgData of pageImgs) {
+        const isRotated90 = (imgData.rotation === 90 || imgData.rotation === 270);
+        const displayWCm = isRotated90 ? imgData.heightCm : imgData.widthCm;
+        const displayHCm = isRotated90 ? imgData.widthCm : imgData.heightCm;
+
+        const rotatedSrc = await getRotatedImageData(imgData.src, imgData.rotation);
+        pdf.addImage(
+          rotatedSrc,
+          'PNG',
+          imgData.x * 10,
+          imgData.y * 10,
+          displayWCm * 10,
+          displayHCm * 10
+        );
+      }
+    }
+
+    pdf.save('Documento_PDF_Studio.pdf');
+    showToast('PDF baixado com sucesso! 🎉', 'success');
+  } catch (err) {
+    console.error(err);
+    showToast('Ocorreu um erro ao gerar o PDF.', 'error');
+  } finally {
+    nextBtn.disabled = false;
+    nextBtn.innerHTML = '📥 Baixar PDF';
+  }
+}
+
+function getRotatedImageData(src, rotation) {
+  return new Promise((resolve) => {
+    if (rotation === 0) return resolve(src);
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      const swap = rotation === 90 || rotation === 270;
+      c.width = swap ? img.height : img.width;
+      c.height = swap ? img.width : img.height;
+      const ctx = c.getContext('2d');
+      ctx.translate(c.width / 2, c.height / 2);
+      ctx.rotate((rotation * Math.PI) / 180);
+      ctx.drawImage(img, -img.width / 2, -img.height / 2);
+      resolve(c.toDataURL('image/png'));
+    };
+    img.src = src;
+  });
+}
+
+function showToast(msg, type = 'success') {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.className = `toast ${type} show`;
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+window.addEventListener('resize', () => {
+  if (currentStep === 3) renderCanvasPage();
 });
 </script>
 </body>
